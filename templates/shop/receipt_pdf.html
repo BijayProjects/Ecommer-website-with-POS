@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #10b981;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #10b981;
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 5px 0 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 12px;
+            color: #666;
+        }
+        .info-grid {
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        .info-col {
+            vertical-align: top;
+            width: 50%;
+        }
+        .section-title {
+            font-size: 10px;
+            font-weight: bold;
+            color: #999;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        .details-text {
+            font-size: 14px;
+        }
+        .order-meta {
+            text-align: right;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        .items-table th {
+            text-align: left;
+            font-size: 10px;
+            color: #999;
+            text-transform: uppercase;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .items-table td {
+            padding: 15px 0;
+            border-bottom: 1px solid #f9f9f9;
+            font-size: 14px;
+        }
+        .items-table .qty { text-align: center; }
+        .items-table .price { text-align: right; }
+        .items-table .total { text-align: right; font-weight: bold; }
+        
+        .summary {
+            width: 100%;
+        }
+        .summary-row {
+            text-align: right;
+        }
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+            padding-right: 20px;
+        }
+        .summary-value {
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .total-row .summary-label {
+            font-size: 16px;
+            color: #333;
+            padding-top: 10px;
+        }
+        .total-row .summary-value {
+            font-size: 24px;
+            color: #10b981;
+            padding-top: 10px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CURATOR ELECTRONICS</h1>
+        <p>Official Payment Receipt</p>
+    </div>
+
+    <table class="info-grid">
+        <tr>
+            <td class="info-col">
+                <div class="section-title">Customer Details</div>
+                <div class="details-text">
+                    <strong>{{ order.first_name }} {{ order.last_name }}</strong><br>
+                    {{ order.email }}<br>
+                    {{ order.phone }}
+                </div>
+            </td>
+            <td class="info-col order-meta">
+                <div class="section-title">Receipt Number</div>
+                <div style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">#ORD-{{ order.id|stringformat:"05d" }}</div>
+                
+                <div class="section-title">Issue Date</div>
+                <div class="details-text">{{ order.created_at|date:"F d, Y" }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="info-grid">
+        <tr>
+            <td class="info-col">
+                <div class="section-title">Shipping Address</div>
+                <div class="details-text">
+                    {{ order.address }}<br>
+                    {{ order.city }}, {{ order.postal_code }}<br>
+                    {{ order.country }}
+                </div>
+            </td>
+            <td class="info-col">
+                <div class="section-title">Payment Information</div>
+                <div class="details-text">
+                    Method: {{ order.get_payment_method_display }}<br>
+                    Status: {% if order.paid %}Paid{% else %}Pending{% endif %}
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th style="width: 50%;">Product Description</th>
+                <th style="width: 10%; text-align: center;">Qty</th>
+                <th style="width: 20%; text-align: right;">Price</th>
+                <th style="width: 20%; text-align: right;">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.items.all %}
+            <tr>
+                <td>
+                    <strong>{{ item.product.name }}</strong><br>
+                    <span style="font-size: 11px; color: #666;">{{ item.product.category.name }}</span>
+                </td>
+                <td class="qty">{{ item.quantity }}</td>
+                <td class="price">${{ item.price }}</td>
+                <td class="total">${{ item.get_cost }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="summary">
+        <tr class="summary-row">
+            <td class="summary-label">Subtotal</td>
+            <td class="summary-value">${{ order.total_amount }}</td>
+        </tr>
+        <tr class="summary-row">
+            <td class="summary-label">Shipping</td>
+            <td class="summary-value" style="color: #10b981;">FREE</td>
+        </tr>
+        <tr class="summary-row total-row">
+            <td class="summary-label">Final Total</td>
+            <td class="summary-value">${{ order.total_amount }}</td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <p>Thank you for choosing Curator Electronics for your premium tech needs.</p>
+        <p>Curator Electronics &copy; 2024 - All Rights Reserved</p>
+    </div>
+</body>
+</html>

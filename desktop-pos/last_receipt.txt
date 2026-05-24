@@ -1,0 +1,32 @@
+==============================================
+            CURATOR ELECTRONICS               
+           Premium Tech & Gadgets             
+==============================================
+  ORDER #00044
+----------------------------------------------
+Date    : 2026-04-26 17:31:40.347936
+Status  : DELIVERED
+Payment : Cash on Delivery
+Paid    : YES
+----------------------------------------------
+CUSTOMER DETAILS
+  Name  : Vijaya Tamang
+  Email : vijay@example.com
+  Phone : 9876543210
+----------------------------------------------
+SHIPPING ADDRESS
+  Ring Road, Kathmandu 001, United States
+----------------------------------------------
+  Item                         Qty   Price     
+----------------------------------------------
+  Daining Table                1     $25000.00
+  Alpha 7 IV Mirrorless        1     $2499.00
+  Nintendo Switch OLED         1     $349.99
+----------------------------------------------
+  Subtotal:                          $27848.99
+  Tax (13%):                         $3620.37
+----------------------------------------------
+  GRAND TOTAL:                       $31469.36
+==============================================
+         THANK YOU FOR YOUR PURCHASE          
+==============================================

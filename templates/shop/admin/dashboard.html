@@ -1,0 +1,405 @@
+{% extends 'shop/admin/admin_base.html' %}
+{% load static %}
+
+{% block header_title %}Analytics Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 transition-all group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">+12.5%</span>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Revenue</p>
+        <h3 class="text-2xl font-black text-slate-800">${{ total_revenue|floatformat:2 }}</h3>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded-lg">{{ pending_orders }} Pending</span>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Orders</p>
+        <h3 class="text-2xl font-black text-slate-800">{{ total_orders }}</h3>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-purple-500/5 transition-all group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="users" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-bold text-slate-400">Total reach</span>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Unique Customers</p>
+        <h3 class="text-2xl font-black text-slate-800">{{ total_customers }}</h3>
+    </div>
+
+    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-orange-500/5 transition-all group">
+        <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+                <i data-lucide="box" class="w-6 h-6"></i>
+            </div>
+            <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg">Inventory</span>
+        </div>
+        <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Store Products</p>
+        <h3 class="text-2xl font-black text-slate-800">{{ total_products }}</h3>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+    <!-- Sales Chart -->
+    <div class="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <h4 class="text-lg font-bold">Revenue Analytics</h4>
+                <p class="text-slate-400 text-xs">Total sales generated in the last 7 days</p>
+            </div>
+            <div class="flex space-x-2">
+                <button class="px-3 py-1 text-xs font-bold rounded-lg bg-emerald-50 text-emerald-600">Weekly</button>
+                <button class="px-3 py-1 text-xs font-bold rounded-lg hover:bg-slate-100 transition-colors">Monthly</button>
+            </div>
+        </div>
+        <div class="h-64">
+            <canvas id="salesChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Inventory Alert -->
+    <div class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 blur-3xl rounded-full translate-x-10 -translate-y-10"></div>
+        
+        <h4 class="text-lg font-bold mb-6 relative z-10">Low Stock Alert</h4>
+        
+        <div class="space-y-4 relative z-10">
+            {% for p in low_stock_products %}
+            <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white/10 rounded-xl overflow-hidden">
+                        {% if p.image %}
+                        <img src="{{ p.image.url }}" class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold truncate w-32">{{ p.name }}</p>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest">{{ p.category.name }}</p>
+                    </div>
+                </div>
+                <div class="bg-red-500/20 text-red-400 px-3 py-1 rounded-lg font-black text-xs">
+                    {{ p.stock }}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-10">
+                <i data-lucide="check-circle" class="w-12 h-12 text-emerald-500 mx-auto mb-4"></i>
+                <p class="text-sm font-bold">All stock optimal</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <a href="{% url 'shop:admin_product_list' %}" class="mt-8 block w-full py-4 bg-emerald-500 hover:bg-emerald-400 transition-colors text-slate-900 font-black rounded-xl text-center text-sm relative z-10">View All Inventory</a>
+    </div>
+</div>
+
+<!-- Desktop POS Download Banner -->
+<div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 p-8 md:p-10 rounded-[2.5rem] shadow-xl mb-8">
+    <!-- Animated Glow Effects -->
+    <div class="absolute top-0 right-0 w-72 h-72 bg-emerald-500/20 blur-3xl rounded-full translate-x-20 -translate-y-20 pointer-events-none animate-pulse"></div>
+    <div class="absolute bottom-0 left-40 w-48 h-48 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
+    <div class="absolute bottom-10 right-40 w-36 h-36 bg-purple-500/10 blur-3xl rounded-full pointer-events-none animate-pulse"></div>
+
+    <div class="relative z-10">
+        <!-- Top Section: Title + Download -->
+        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-8">
+            <div class="flex items-center gap-6">
+                <div class="w-18 h-18 bg-gradient-to-br from-emerald-500/30 to-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center flex-shrink-0 p-4">
+                    <i data-lucide="monitor" class="w-10 h-10 text-emerald-400"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3 mb-1.5">
+                        <h4 class="text-white text-2xl font-black tracking-tight">Curator Desktop POS</h4>
+                        <span class="text-[10px] font-black uppercase tracking-widest bg-emerald-500 text-slate-900 px-2.5 py-1 rounded-lg">v2.0</span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg border border-amber-500/20">Updated</span>
+                    </div>
+                    <p class="text-slate-400 text-sm max-w-lg leading-relaxed">Full-featured Point of Sale terminal for Windows. Syncs with your live database in real time — manage inventory, process sales, track expenses, and handle deliveries from your desktop.</p>
+                </div>
+            </div>
+            <div class="flex flex-col gap-3 flex-shrink-0 w-full lg:w-auto">
+                <a href="{% static 'downloads/CuratorPOS.exe' %}" download="CuratorPOS.exe"
+                   class="group flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 transition-all text-slate-900 font-black px-8 py-4 rounded-2xl text-sm shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/40 hover:scale-105 active:scale-100">
+                    <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i>
+                    Download .exe Launcher
+                </a>
+                <a href="{% static 'downloads/CuratorPOS.jar' %}" download="CuratorPOS.jar"
+                   class="group flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 transition-all text-white font-bold px-8 py-3 rounded-2xl text-xs border border-white/10 hover:border-white/20">
+                    <i data-lucide="package" class="w-4 h-4"></i>
+                    Download .jar (~22 MB)
+                </a>
+            </div>
+        </div>
+
+        <!-- Feature Grid -->
+        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;margin-bottom:2rem;">
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Secure Login</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Staff authentication</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Live Sync</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Real-time database</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-purple-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Sales Reports</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Analytics & export</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-amber-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="printer" class="w-4 h-4 text-amber-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Receipt Printing</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Physical printer support</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="map-pin" class="w-4 h-4 text-rose-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Google Maps</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Delivery navigation</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="percent" class="w-4 h-4 text-cyan-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Discount System</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">% or flat discounts</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="wallet" class="w-4 h-4 text-orange-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Expense Manager</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Track business costs</p>
+            </div>
+            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
+                <div class="w-9 h-9 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-3">
+                    <i data-lucide="edit-3" class="w-4 h-4 text-indigo-400"></i>
+                </div>
+                <p class="text-white text-xs font-bold">Order Editing</p>
+                <p class="text-slate-500 text-[10px] mt-0.5">Full CRUD operations</p>
+            </div>
+        </div>
+
+        <!-- Bottom: Changelog + Requirements -->
+        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+            <!-- What's New -->
+            <div style="flex:1;min-width:300px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
+                    <h5 class="text-white text-xs font-black uppercase tracking-widest">What's New in v2.0</h5>
+                </div>
+                <ul class="space-y-2">
+                    <li class="flex items-start gap-2 text-slate-400 text-xs">
+                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
+                        <span><span class="text-white font-bold">Google Maps Integration</span> — Copy address or open delivery location directly in Maps</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-slate-400 text-xs">
+                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
+                        <span><span class="text-white font-bold">Discount System</span> — Apply percentage or flat discounts with live total breakdown</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-slate-400 text-xs">
+                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
+                        <span><span class="text-white font-bold">Editable Sales Reports</span> — Edit or delete any order directly from Sales Reports</span>
+                    </li>
+                    <li class="flex items-start gap-2 text-slate-400 text-xs">
+                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
+                        <span><span class="text-white font-bold">Scrollable Order Panel</span> — Full order details visible on any screen size</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- System Requirements -->
+            <div style="width:240px;flex-shrink:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="cpu" class="w-4 h-4 text-slate-400"></i>
+                    <h5 class="text-white text-xs font-black uppercase tracking-widest">Requirements</h5>
+                </div>
+                <ul class="space-y-2.5">
+                    <li class="flex items-center gap-2 text-slate-400 text-xs">
+                        <i data-lucide="monitor" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>Windows 10 / 11</span>
+                    </li>
+                    <li class="flex items-center gap-2 text-slate-400 text-xs">
+                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>Java 17+ Runtime</span>
+                    </li>
+                    <li class="flex items-center gap-2 text-slate-400 text-xs">
+                        <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>~50 MB disk space</span>
+                    </li>
+                    <li class="flex items-center gap-2 text-slate-400 text-xs">
+                        <i data-lucide="wifi" class="w-3.5 h-3.5 text-slate-500"></i>
+                        <span>Network for DB sync</span>
+                    </li>
+                </ul>
+                <p class="text-slate-600 text-[10px] mt-4 border-t border-white/5 pt-3">Place .exe and .jar in the same folder before launching.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Orders Table -->
+<div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+    <div class="flex items-center justify-between mb-8">
+        <h4 class="text-lg font-bold">Latest Order Activity</h4>
+        <a href="{% url 'shop:admin_order_list' %}" class="text-xs font-bold text-emerald-600 hover:text-emerald-500 transition-colors">Show All Orders &rarr;</a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black border-b border-slate-50">
+                    <th class="pb-4">Order ID</th>
+                    <th class="pb-4">Customer</th>
+                    <th class="pb-4">Date</th>
+                    <th class="pb-4">Amount</th>
+                    <th class="pb-4">Payment</th>
+                    <th class="pb-4 text-center">Status</th>
+                    <th class="pb-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm">
+                {% for order in recent_orders %}
+                <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors group">
+                    <td class="py-4 font-bold text-slate-500">#{{ order.id|stringformat:"05d" }}</td>
+                    <td class="py-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-[10px]">
+                                {{ order.first_name|make_list|first }}{{ order.last_name|make_list|first }}
+                            </div>
+                            <div>
+                                <p class="font-bold text-slate-800">{{ order.first_name }} {{ order.last_name }}</p>
+                                <p class="text-[10px] text-slate-400">{{ order.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-4 text-slate-500 font-medium">{{ order.created_at|date:"M d, Y" }}</td>
+                    <td class="py-4 font-black text-slate-800">${{ order.total_amount }}</td>
+                    <td class="py-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-2 h-2 rounded-full {% if order.paid %}bg-emerald-500{% else %}bg-orange-400{% endif %}"></span>
+                            <span class="text-xs font-bold uppercase tracking-widest text-slate-500">{{ order.payment_method }}</span>
+                        </div>
+                    </td>
+                    <td class="py-4">
+                        <div class="flex justify-center">
+                            <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest 
+                                {% if order.status == 'delivered' %}bg-emerald-100 text-emerald-600
+                                {% elif order.status == 'cancelled' %}bg-red-100 text-red-600
+                                {% elif order.status == 'shipped' %}bg-blue-100 text-blue-600
+                                {% else %}bg-orange-100 text-orange-600{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </div>
+                    </td>
+                    <td class="py-4 text-right">
+                        <a href="{% url 'shop:admin_order_detail' order.id %}" class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-slate-100 text-slate-500 hover:bg-emerald-500 hover:text-white transition-all">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Gradient for the chart
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+    gradient.addColorStop(1, 'rgba(16, 185, 129, 0)');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ chart_labels|safe }},
+            datasets: [{
+                label: 'Revenue',
+                data: {{ chart_data|safe }},
+                borderColor: '#10b981',
+                borderWidth: 4,
+                backgroundColor: gradient,
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#10b981',
+                pointBorderWidth: 2,
+                pointRadius: 6,
+                pointHoverRadius: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    padding: 12,
+                    titleFont: { size: 14, weight: 'bold' },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            return ' $' + context.parsed.y.toFixed(2);
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.03)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: { size: 11, weight: 'bold' },
+                        color: '#94a3b8',
+                        callback: function(value) {
+                            return '$' + value;
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: { size: 11, weight: 'bold' },
+                        color: '#94a3b8'
+                    }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

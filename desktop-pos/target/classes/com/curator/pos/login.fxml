@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="700.0" prefWidth="1000.0" spacing="20.0" style="-fx-background-color: #0f172a;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.curator.pos.LoginController">
+   <children>
+      <VBox alignment="CENTER" maxWidth="400.0" spacing="30.0" style="-fx-background-color: #1e293b; -fx-padding: 50; -fx-background-radius: 25; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 30, 0, 0, 15);">
+         <children>
+            <VBox alignment="CENTER" spacing="10.0">
+               <children>
+                  <Label text="CURATOR" textFill="#10b981">
+                     <font>
+                        <Font name="System Bold" size="40.0" />
+                     </font>
+                  </Label>
+                  <Label text="Terminal Authentication" textFill="#94a3b8">
+                     <font>
+                        <Font size="14.0" />
+                     </font>
+                  </Label>
+               </children>
+            </VBox>
+            
+            <VBox spacing="15.0">
+               <children>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="USERNAME" textFill="#64748b">
+                           <font>
+                              <Font name="System Bold" size="11.0" />
+                           </font>
+                        </Label>
+                        <TextField fx:id="usernameField" prefHeight="45.0" promptText="Enter username..." style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-border-color: #334155; -fx-border-radius: 10; -fx-background-radius: 10;" />
+                     </children>
+                  </VBox>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label text="PASSWORD" textFill="#64748b">
+                           <font>
+                              <Font name="System Bold" size="11.0" />
+                           </font>
+                        </Label>
+                        <PasswordField fx:id="passwordField" onAction="#handleLogin" prefHeight="45.0" promptText="••••••••" style="-fx-background-color: #0f172a; -fx-text-fill: white; -fx-border-color: #334155; -fx-border-radius: 10; -fx-background-radius: 10;" />
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            
+            <Button fx:id="loginButton" mnemonicParsing="false" onAction="#handleLogin" prefHeight="50.0" prefWidth="1000.0" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px; -fx-background-radius: 12; -fx-cursor: hand;" text="SECURE LOGIN" />
+            
+            <Label fx:id="statusLabel" textFill="#ef4444" wrapText="true">
+               <font>
+                  <Font size="13.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+      <Label text="Curator Business Suite v1.0 | Connected to Cloud Storage" textFill="#334155" />
+   </children>
+</VBox>

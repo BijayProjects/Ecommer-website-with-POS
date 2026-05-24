@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.curator.pos.DashboardController">
+    <children>
+        <!-- NAVIGATION TOOLBAR -->
+        <ToolBar prefHeight="60.0" prefWidth="200.0" style="-fx-background-color: #0f172a;">
+            <items>
+                <Label style="-fx-text-fill: #10b981; -fx-font-weight: bold; -fx-font-size: 22px;" text="Curator Business Suite" />
+                <Pane HBox.hgrow="ALWAYS" />
+                <HBox alignment="CENTER" spacing="15.0">
+                    <children>
+                        <Label fx:id="userNameLabel" text="User" textFill="WHITE">
+                            <font>
+                                <Font name="System Bold" size="14.0" />
+                            </font>
+                        </Label>
+                        <Button mnemonicParsing="false" onAction="#handleLogout" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="Sign Out" />
+                    </children>
+                </HBox>
+                <Separator orientation="VERTICAL" />
+                <Button mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-cursor: hand;" text="↻ Sync All Data" />
+                <Button mnemonicParsing="false" onAction="#handleChangePrinter" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-cursor: hand;" text="🖨 Select Printer" />
+                <Button mnemonicParsing="false" onAction="#handleReloadApp" style="-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-cursor: hand;" text="🔄 Reload App" />
+            </items>
+            <padding>
+                <Insets bottom="10.0" left="20.0" right="20.0" top="10.0" />
+            </padding>
+        </ToolBar>
+        
+        <TabPane fx:id="mainTabPane" side="TOP" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS" style="-fx-background-color: #f1f5f9;">
+            <tabs>
+                <!-- TAB 1: POS TERMINAL -->
+                <Tab text="🛒 POS TERMINAL">
+                    <content>
+                        <StackPane>
+                            <children>
+                                <!-- PAGE 1: INVENTORY & CART -->
+                                <VBox fx:id="inventoryPage" visible="true">
+                                    <SplitPane dividerPositions="0.75" orientation="VERTICAL" VBox.vgrow="ALWAYS">
+                                        <items>
+                                            <SplitPane dividerPositions="0.65">
+                                                <items>
+                                                    <SplitPane dividerPositions="0.25">
+                                                        <items>
+                                                            <VBox spacing="10" style="-fx-background-color: #f1f5f9;">
+                                                                <padding><Insets bottom="15.0" left="15.0" right="15.0" top="15.0" /></padding>
+                                                                <Label style="-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Categories" />
+                                                                <ListView fx:id="categoryListView" VBox.vgrow="ALWAYS" />
+                                                            </VBox>
+
+                                                            <VBox spacing="15.0" style="-fx-background-color: #f8fafc;">
+                                                                <padding><Insets bottom="20.0" left="20.0" right="20.0" top="20.0" /></padding>
+                                                                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="📦 Inventory" />
+                                                                    <Pane HBox.hgrow="ALWAYS" />
+                                                                    <TextField fx:id="searchField" promptText="🔍 Search..." prefWidth="180.0" />
+                                                                    <Button mnemonicParsing="false" onAction="#handleAddProduct" style="-fx-background-color: #3b82f6; -fx-text-fill: white;" text="➕ New" />
+                                                                </HBox>
+                                                                <TableView fx:id="productTable" VBox.vgrow="ALWAYS">
+                                                                    <columns>
+                                                                        <TableColumn fx:id="colName" prefWidth="250.0" text="Product Name" />
+                                                                        <TableColumn fx:id="colPrice" prefWidth="80.0" text="Price ($)" />
+                                                                        <TableColumn fx:id="colStock" prefWidth="80.0" text="Stock" />
+                                                                    </columns>
+                                                                </TableView>
+                                                                <HBox alignment="CENTER_RIGHT">
+                                                                    <Button mnemonicParsing="false" onAction="#handleAddToCart" prefHeight="40.0" prefWidth="180.0" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;" text="➕ Add to Cart" />
+                                                                </HBox>
+                                                            </VBox>
+                                                        </items>
+                                                    </SplitPane>
+                                                    <VBox spacing="10.0" style="-fx-background-color: #ffffff; -fx-padding: 20;">
+                                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="🛒 Current Cart" />
+                                                        <TableView fx:id="cartTable" VBox.vgrow="ALWAYS">
+                                                            <columns>
+                                                                <TableColumn fx:id="cartColName" prefWidth="200.0" text="Item" />
+                                                                <TableColumn fx:id="cartColQty" prefWidth="60.0" text="Qty" />
+                                                                <TableColumn fx:id="cartColPrice" prefWidth="90.0" text="Total ($)" />
+                                                            </columns>
+                                                        </TableView>
+                                                        <VBox alignment="CENTER_RIGHT" spacing="5.0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 15;">
+                                                            <Label fx:id="subtotalLabel" style="-fx-font-size: 15px; -fx-text-fill: #64748b;" text="Subtotal: \$0.00" />
+                                                            <Label fx:id="taxLabel" style="-fx-font-size: 15px; -fx-text-fill: #ef4444;" text="Tax (13%): \$0.00" />
+                                                            <Label fx:id="totalLabel" style="-fx-font-weight: bold; -fx-font-size: 24px; -fx-text-fill: #0f172a;" text="Total: \$0.00" />
+                                                        </VBox>
+                                                        <Button mnemonicParsing="false" onAction="#handleCheckout" prefHeight="55.0" prefWidth="1000.0" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;" text="CHECKOUT NOW →" />
+                                                    </VBox>
+                                                </items>
+                                            </SplitPane>
+                                            <VBox spacing="5.0" style="-fx-background-color: #f1f5f9; -fx-padding: 10;">
+                                                <Label style="-fx-font-size: 13px; -fx-font-weight: bold; -fx-text-fill: #3b82f6;" text="🌐 Orders Feed" />
+                                                <ListView fx:id="orderListView" VBox.vgrow="ALWAYS" style="-fx-font-size: 11px; -fx-font-family: 'Consolas';" />
+                                            </VBox>
+                                        </items>
+                                    </SplitPane>
+                                </VBox>
+                                
+                                <!-- PAGE 2: CHECKOUT PAGE -->
+                                <HBox fx:id="checkoutPage" visible="false" spacing="0">
+                                    <children>
+                                        <VBox prefWidth="280.0" spacing="20.0" style="-fx-background-color: #1e293b; -fx-padding: 30;">
+                                            <Label style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;" text="Payment" />
+                                            <ListView fx:id="paymentSidebarList" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-control-inner-background: #1e293b;"/>
+                                            
+                                            <VBox spacing="5.0" style="-fx-padding: 10 0 10 0; -fx-border-color: #334155; -fx-border-width: 1 0 0 0;">
+                                                <Label text="TOTAL TO PAY" style="-fx-text-fill: #94a3b8; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                                                <Label fx:id="totalLabelSidebar" text="\$0.00" style="-fx-text-fill: #10b981; -fx-font-size: 28px; -fx-font-weight: bold;" />
+                                            </VBox>
+
+                                            <Button mnemonicParsing="false" onAction="#switchToInventory" prefWidth="1000.0" style="-fx-background-color: transparent; -fx-border-color: #475569; -fx-text-fill: #94a3b8;" text="← Back" />
+                                        </VBox>
+                                        <VBox HBox.hgrow="ALWAYS" spacing="25.0" style="-fx-background-color: white; -fx-padding: 40;">
+                                            <Label style="-fx-font-size: 28px; -fx-font-weight: bold;" text="Order Details" />
+                                            <HBox spacing="40.0" VBox.vgrow="ALWAYS">
+                                                <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                                    <TableView fx:id="cartTableCheckout" VBox.vgrow="ALWAYS" style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e2e8f0;">
+                                                        <columns>
+                                                            <TableColumn fx:id="cartColNameCheckout" prefWidth="250.0" text="Item" />
+                                                            <TableColumn fx:id="cartColQtyCheckout" prefWidth="80.0" text="Qty" />
+                                                            <TableColumn fx:id="cartColPriceCheckout" prefWidth="100.0" text="Total ($)" />
+                                                        </columns>
+                                                    </TableView>
+                                                </VBox>
+                                                <VBox spacing="20.0" prefWidth="350.0">
+                                                    <VBox spacing="15.0" style="-fx-background-color: #f8fafc; -fx-padding: 30; -fx-background-radius: 20;">
+                                                        <Label fx:id="subtotalLabelCheckout" text="Subtotal: \$0.00" />
+                                                        <Label fx:id="taxLabelCheckout" text="Tax: \$0.00" />
+                                                        <Label fx:id="totalLabelCheckout" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #10b981;" text="\$0.00" />
+                                                    </VBox>
+                                                    <Button mnemonicParsing="false" onAction="#handleFinalCheckout" prefHeight="70.0" prefWidth="1000.0" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;" text="PRINT BILL &amp; COMPLETE" />
+                                                </VBox>
+                                            </HBox>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                            </children>
+                        </StackPane>
+                    </content>
+                </Tab>
+
+                <!-- TAB 2: WHATSAPP ORDERS -->
+                <Tab text="💬 WHATSAPP ORDERS">
+                    <content>
+                        <HBox spacing="0" style="-fx-background-color: #f1f5f9;">
+                            <children>
+                                <!-- LEFT: WhatsApp List -->
+                                <VBox HBox.hgrow="ALWAYS" spacing="15.0" style="-fx-padding: 25;">
+                                    <children>
+                                        <!-- Filter Bar -->
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                            <children>
+                                                <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #059669;" text="💬 WhatsApp Inquiries" />
+                                                <Pane HBox.hgrow="ALWAYS" />
+                                                <TextField fx:id="waSearchField" prefWidth="250.0" promptText="🔍 Search inquiry..." />
+                                                <Button mnemonicParsing="false" onAction="#handleRefreshWhatsAppOrders" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="↻ Refresh" />
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Summary Cards -->
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="TOTAL INQUIRIES" />
+                                                    <Label fx:id="waTotalOrdersLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #059669;" text="0" />
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="NEW LEADS" />
+                                                    <Label fx:id="waPendingLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;" text="0" />
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="POTENTIAL REVENUE" />
+                                                    <Label fx:id="waRevenueLabel" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #10b981;" text="\$0.00" />
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Table -->
+                                        <TableView fx:id="waOrderTable" style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e2e8f0;" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="waColId" prefWidth="70.0" text="ID" />
+                                                <TableColumn fx:id="waColDate" prefWidth="140.0" text="Date" />
+                                                <TableColumn fx:id="waColCustomer" prefWidth="140.0" text="Customer" />
+                                                <TableColumn fx:id="waColEmail" prefWidth="160.0" text="Email" />
+                                                <TableColumn fx:id="waColAmount" prefWidth="100.0" text="Price" />
+                                                <TableColumn fx:id="waColStatus" prefWidth="120.0" text="Status" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+
+                                <!-- RIGHT: Sidebar -->
+                                <VBox fx:id="waOrderDetailPanel" prefWidth="360.0" spacing="0" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 0 1;">
+                                    <children>
+                                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" style="-fx-background-color: white; -fx-background: white;" VBox.vgrow="ALWAYS">
+                                            <content>
+                                                <VBox spacing="15.0" style="-fx-padding: 25;">
+                                                    <children>
+                                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #059669;" text="Lead Details" />
+                                                        <Label fx:id="waDetailOrderId" style="-fx-font-size: 14px; -fx-text-fill: #64748b;" text="Select an inquiry" />
+
+                                                        <!-- Info -->
+                                                        <VBox spacing="8.0" style="-fx-background-color: #f0fdf4; -fx-padding: 15; -fx-background-radius: 12;">
+                                                            <Label style="-fx-text-fill: #059669; -fx-font-size: 10px; -fx-font-weight: bold;" text="CUSTOMER" />
+                                                            <Label fx:id="waDetailCustomerName" style="-fx-font-size: 16px; -fx-font-weight: bold;" text="-" />
+                                                            <Label fx:id="waDetailEmail" text="-" />
+                                                            <Label fx:id="waDetailPhone" text="-" />
+                                                        </VBox>
+
+                                                        <VBox spacing="5.0">
+                                                            <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="INQUIRY ITEM" />
+                                                            <ListView fx:id="waDetailItemsList" prefHeight="100.0" style="-fx-background-radius: 10;" />
+                                                            <HBox alignment="CENTER_RIGHT">
+                                                                <Label style="-fx-font-weight: bold;" text="Amount: " />
+                                                                <Label fx:id="waDetailTotal" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #059669;" text="\$0.00" />
+                                                            </HBox>
+                                                        </VBox>
+
+                                                        <Separator />
+
+                                                        <VBox spacing="10.0">
+                                                            <Label style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;" text="MANAGE LEAD" />
+                                                            <ComboBox fx:id="waStatusUpdateBox" maxWidth="Infinity" promptText="Change Status" />
+                                                            <Button maxWidth="Infinity" onAction="#handleUpdateWhatsAppStatus" style="-fx-background-color: #059669; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 12; -fx-background-radius: 10; -fx-cursor: hand;" text="Update Lead Status" />
+                                                            <Button maxWidth="Infinity" onAction="#handlePrintWhatsAppOrderBill" style="-fx-background-color: #f1f5f9; -fx-text-fill: #334155; -fx-font-weight: bold; -fx-padding: 10; -fx-background-radius: 10; -fx-cursor: hand;" text="🖨️ Print Quote" />
+                                                        </VBox>
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </content>
+                </Tab>
+
+                <!-- TAB 2: SALES REPORTS -->
+                <Tab text="📈 SALES REPORTS">
+                    <content>
+                        <VBox spacing="20.0" style="-fx-padding: 30;">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="20.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                    <children>
+                                        <VBox spacing="5.0">
+                                            <Label text="Viewing Data For:" style="-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #64748b;"/>
+                                            <DatePicker fx:id="reportDatePicker" />
+                                        </VBox>
+                                        <CheckBox fx:id="showAllHistoryCheck" text="📊 Show Entire History" style="-fx-font-weight: bold; -fx-text-fill: #3b82f6;"/>
+                                        <Button mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-weight: bold;" text="↻ Reload Sales" />
+                                        <Pane HBox.hgrow="ALWAYS" />
+                                        <VBox alignment="CENTER_RIGHT">
+                                            <Label text="NET PROFIT" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                            <Label fx:id="reportNetProfit" text="\$0.00" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;"/>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+
+                                <HBox spacing="20.0">
+                                    <VBox prefWidth="300.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                        <Label text="TOTAL REVENUE" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="reportTotalRevenue" text="\$0.00" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #10b981;"/>
+                                    </VBox>
+                                    <VBox prefWidth="300.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                        <Label text="TOTAL ORDERS" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="reportTotalOrders" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #3b82f6;"/>
+                                    </VBox>
+                                    <VBox prefWidth="300.0" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                        <Label text="PRODUCTS DELIVERED" style="-fx-text-fill: #64748b; -fx-font-size: 11px; -fx-font-weight: bold;"/>
+                                        <Label fx:id="reportTotalProducts" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #8b5cf6;"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox spacing="10.0" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                    <HBox alignment="CENTER_LEFT">
+                                        <Label text="Detailed Sales History" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+                                        <Pane HBox.hgrow="ALWAYS" />
+                                        <Button mnemonicParsing="false" onAction="#handleExportSales" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold;" text="📥 Export to Excel" />
+                                    </HBox>
+                                    <TableView fx:id="salesReportTable" VBox.vgrow="ALWAYS">
+                                        <columns>
+                                            <TableColumn fx:id="repColId" prefWidth="80.0" text="Order ID" />
+                                            <TableColumn fx:id="repColDate" prefWidth="180.0" text="Date" />
+                                            <TableColumn fx:id="repColCustomer" prefWidth="150.0" text="Customer" />
+                                            <TableColumn fx:id="repColMethod" prefWidth="120.0" text="Method" />
+                                            <TableColumn fx:id="repColAmount" prefWidth="120.0" text="Amount ($)" />
+                                            <TableColumn fx:id="repColStatus" prefWidth="120.0" text="Status" />
+                                        </columns>
+                                    </TableView>
+                                    <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                                        <children>
+                                            <Button mnemonicParsing="false" onAction="#handleEditSalesOrder" prefHeight="38.0" style="-fx-background-color: #fff7ed; -fx-text-fill: #f59e0b; -fx-border-color: #ffedd5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-cursor: hand;" text="📝 Edit Order" />
+                                            <Button mnemonicParsing="false" onAction="#handleDeleteSalesOrder" prefHeight="38.0" style="-fx-background-color: #fef2f2; -fx-text-fill: #ef4444; -fx-border-color: #fee2e2; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-cursor: hand;" text="🗑 Delete Order" />
+                                        </children>
+                                    </HBox>
+                                </VBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+
+                <!-- TAB 3: EXPENSE MANAGER -->
+                <Tab text="💸 EXPENSE MANAGER">
+                    <content>
+                        <HBox spacing="30.0" style="-fx-padding: 30;">
+                            <children>
+                                <!-- Left side: Add Expense Form -->
+                                <VBox prefWidth="350.0" spacing="20.0" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                    <children>
+                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Log Business Expense" />
+                                        <VBox spacing="15.0">
+                                            <VBox spacing="5.0">
+                                                <Label text="Expense Title" />
+                                                <TextField fx:id="expTitleField" promptText="e.g. Monthly Rent" />
+                                            </VBox>
+                                            <HBox spacing="10.0">
+                                                <VBox HBox.hgrow="ALWAYS" spacing="5.0">
+                                                    <Label text="Amount ($)" />
+                                                    <TextField fx:id="expAmountField" promptText="0.00" />
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS" spacing="5.0">
+                                                    <Label text="Bill / Invoice No." />
+                                                    <TextField fx:id="expBillNoField" promptText="optional" />
+                                                </VBox>
+                                            </HBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Expense Date" />
+                                                <DatePicker fx:id="expDatePicker" prefWidth="1000.0" />
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Category" />
+                                                <ComboBox fx:id="expCategoryBox" prefWidth="1000.0" />
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Attach Bill/Invoice" />
+                                                <HBox spacing="5.0">
+                                                    <TextField fx:id="expBillField" HBox.hgrow="ALWAYS" promptText="Select bill image..." />
+                                                    <Button mnemonicParsing="false" onAction="#handleBrowseExpenseBill" text="Browse" />
+                                                </HBox>
+                                            </VBox>
+                                            <VBox spacing="5.0">
+                                                <Label text="Short Description" />
+                                                <TextArea fx:id="expDescField" prefHeight="80.0" promptText="Note for accounting..." />
+                                            </VBox>
+                                        </VBox>
+                                        <Button mnemonicParsing="false" onAction="#handleSaveExpense" prefHeight="45.0" prefWidth="1000.0" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: bold;" text="SAVE EXPENSE" />
+                                    </children>
+                                </VBox>
+
+                                <!-- Right side: Expense List -->
+                                <VBox HBox.hgrow="ALWAYS" spacing="15.0" style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                    <children>
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                            <Label style="-fx-font-size: 18px; -fx-font-weight: bold;" text="Expense Records" />
+                                            <Button mnemonicParsing="false" onAction="#handleExportExpenses" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 11px;" text="📥 Export" />
+                                            <Pane HBox.hgrow="ALWAYS" />
+                                            <DatePicker fx:id="expFilterDatePicker" prefWidth="120.0" promptText="Filter Date" />
+                                            <CheckBox fx:id="expShowAllCheck" text="All" style="-fx-font-size: 11px;"/>
+                                            <Label fx:id="totalExpensesLabel" text="Total Expenses: \$0.00" style="-fx-text-fill: #ef4444; -fx-font-weight: bold;"/>
+                                        </HBox>
+                                        <TableView fx:id="expenseTable" VBox.vgrow="ALWAYS">
+                                            <columns>
+                                                <TableColumn fx:id="expColId" prefWidth="50.0" text="ID" />
+                                                <TableColumn fx:id="expColDate" prefWidth="100.0" text="Date" />
+                                                <TableColumn fx:id="expColBillNo" prefWidth="80.0" text="Bill No" />
+                                                <TableColumn fx:id="expColTitle" prefWidth="150.0" text="Title" />
+                                                <TableColumn fx:id="expColCat" prefWidth="120.0" text="Category" />
+                                                <TableColumn fx:id="expColAmount" prefWidth="100.0" text="Amount" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </content>
+                </Tab>
+                <!-- TAB 4: WEBSITE ORDERS -->
+                <Tab text="🌐 WEBSITE ORDERS">
+                    <content>
+                        <HBox spacing="0" style="-fx-background-color: #f1f5f9;">
+                            <children>
+                                <!-- LEFT: Orders List -->
+                                <VBox HBox.hgrow="ALWAYS" spacing="15.0" style="-fx-padding: 25;">
+                                    <children>
+                                        <!-- Filter Bar -->
+                                        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                            <children>
+                                                <Label text="🌐 Website Orders" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                                <Pane HBox.hgrow="ALWAYS" />
+                                                <ComboBox fx:id="webOrderStatusFilter" prefWidth="140.0" promptText="All Status" />
+                                                <ComboBox fx:id="webOrderPaymentFilter" prefWidth="140.0" promptText="All Payments" />
+                                                <TextField fx:id="webOrderSearchField" prefWidth="180.0" promptText="🔍 Search customer..." />
+                                                <Button mnemonicParsing="false" onAction="#handleRefreshWebOrders" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;" text="↻ Refresh" />
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Summary Cards -->
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label text="TOTAL ORDERS" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                    <Label fx:id="webTotalOrdersLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #3b82f6;"/>
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label text="PENDING" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                    <Label fx:id="webPendingLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;"/>
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label text="PAID / UNPAID" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                    <Label fx:id="webPaidCountLabel" text="0 / 0" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #10b981;"/>
+                                                </VBox>
+                                                <VBox HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                                    <Label text="REVENUE" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                    <Label fx:id="webRevenueLabel" text="\$0.00" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #10b981;"/>
+                                                </VBox>
+                                            </children>
+                                        </HBox>
+
+                                        <!-- Orders Table -->
+                                        <TableView fx:id="webOrderTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e2e8f0;">
+                                            <columns>
+                                                <TableColumn fx:id="webColId" prefWidth="70.0" text="Order #" />
+                                                <TableColumn fx:id="webColDate" prefWidth="140.0" text="Date" />
+                                                <TableColumn fx:id="webColCustomer" prefWidth="140.0" text="Customer" />
+                                                <TableColumn fx:id="webColEmail" prefWidth="160.0" text="Email" />
+                                                <TableColumn fx:id="webColMethod" prefWidth="110.0" text="Payment" />
+                                                <TableColumn fx:id="webColPaid" prefWidth="90.0" text="Paid?" />
+                                                <TableColumn fx:id="webColAmount" prefWidth="90.0" text="Amount" />
+                                                <TableColumn fx:id="webColStatus" prefWidth="100.0" text="Status" />
+                                            </columns>
+                                        </TableView>
+                                    </children>
+                                </VBox>
+
+                                <!-- RIGHT: Order Detail Sidebar -->
+                                <VBox fx:id="webOrderDetailPanel" prefWidth="360.0" spacing="0" style="-fx-background-color: white; -fx-border-color: #e2e8f0; -fx-border-width: 0 0 0 1;">
+                                    <children>
+                                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" vbarPolicy="AS_NEEDED" VBox.vgrow="ALWAYS" style="-fx-background-color: white; -fx-background: white;">
+                                            <content>
+                                                <VBox spacing="15.0" style="-fx-padding: 25;">
+                                                    <children>
+                                                        <Label text="Order Details" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                                        <Label fx:id="webDetailOrderId" text="Select an order" style="-fx-font-size: 14px; -fx-text-fill: #64748b;"/>
+
+                                                        <!-- Customer Info -->
+                                                        <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 12;">
+                                                            <Label text="CUSTOMER" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                            <Label fx:id="webDetailCustomerName" text="-" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                                            <Label fx:id="webDetailEmail" text="-" style="-fx-font-size: 12px; -fx-text-fill: #3b82f6;"/>
+                                                            <Label fx:id="webDetailPhone" text="-" style="-fx-font-size: 12px; -fx-text-fill: #475569;"/>
+                                                        </VBox>
+
+                                                        <!-- Shipping Info -->
+                                                        <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 12;">
+                                                            <Label text="SHIPPING ADDRESS" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                            <Label fx:id="webDetailAddress" text="-" style="-fx-font-size: 12px; -fx-text-fill: #1e293b;" wrapText="true"/>
+                                                            <HBox spacing="8.0" alignment="CENTER_LEFT">
+                                                                <Button mnemonicParsing="false" onAction="#handleCopyAddress" style="-fx-background-color: #e0f2fe; -fx-text-fill: #0284c7; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;" text="📋 Copy Address" />
+                                                                <Button mnemonicParsing="false" onAction="#handleOpenGoogleMaps" style="-fx-background-color: #dcfce7; -fx-text-fill: #16a34a; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;" text="📍 Open in Google Maps" />
+                                                            </HBox>
+                                                        </VBox>
+
+                                                        <!-- Payment Info -->
+                                                        <VBox spacing="8.0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 12;">
+                                                            <Label text="PAYMENT" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                            <Label fx:id="webDetailPayment" text="-" style="-fx-font-size: 13px; -fx-font-weight: bold;"/>
+                                                            <Label fx:id="webDetailPaidStatus" text="-" style="-fx-font-size: 13px;"/>
+                                                            <Label fx:id="webDetailTransId" text="-" style="-fx-font-size: 11px; -fx-text-fill: #94a3b8;"/>
+                                                            <Label fx:id="webDetailAmount" text="\$0.00" style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #10b981;"/>
+                                                        </VBox>
+
+                                                        <!-- Order Items -->
+                                                        <VBox spacing="5.0" style="-fx-background-color: #f8fafc; -fx-padding: 15; -fx-background-radius: 12;">
+                                                            <Label text="ORDER ITEMS" style="-fx-text-fill: #64748b; -fx-font-size: 10px; -fx-font-weight: bold;"/>
+                                                            <ListView fx:id="webDetailItemsList" prefHeight="150.0" style="-fx-font-size: 11px; -fx-font-family: 'Consolas'; -fx-background-color: transparent;"/>
+                                                        </VBox>
+
+                                                        <!-- Actions -->
+                                                        <HBox spacing="8.0">
+                                                            <ComboBox fx:id="webStatusUpdateBox" prefWidth="170.0" promptText="Change Status" />
+                                                            <Button mnemonicParsing="false" onAction="#handleUpdateOrderStatus" HBox.hgrow="ALWAYS" style="-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8; -fx-cursor: hand;" text="Update" />
+                                                        </HBox>
+                                                        <Button mnemonicParsing="false" onAction="#handlePrintWebOrderBill" prefHeight="40.0" prefWidth="1000.0" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 10; -fx-cursor: hand;" text="🖨 PRINT BILL" />
+                                                        <HBox spacing="8.0">
+                                                            <Button mnemonicParsing="false" onAction="#handleEditWebOrder" HBox.hgrow="ALWAYS" prefHeight="38.0" prefWidth="500.0" style="-fx-background-color: #fff7ed; -fx-text-fill: #f59e0b; -fx-border-color: #ffedd5; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-cursor: hand;" text="📝 Edit Order" />
+                                                            <Button mnemonicParsing="false" onAction="#handleDeleteWebOrder" HBox.hgrow="ALWAYS" prefHeight="38.0" prefWidth="500.0" style="-fx-background-color: #fef2f2; -fx-text-fill: #ef4444; -fx-border-color: #fee2e2; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-weight: bold; -fx-cursor: hand;" text="🗑 Delete Order" />
+                                                        </HBox>
+                                                    </children>
+                                                </VBox>
+                                            </content>
+                                        </ScrollPane>
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </content>
+                </Tab>
+
+
+
+                <!-- TAB 6: PRODUCT MANAGER -->
+                <Tab text="📦 PRODUCT MANAGER">
+                    <content>
+                        <VBox spacing="20.0" style="-fx-padding: 30;">
+                            <children>
+                                <HBox alignment="CENTER_LEFT" spacing="15.0" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 15; -fx-border-color: #e2e8f0; -fx-border-radius: 15;">
+                                    <children>
+                                        <Label text="Product Master List" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;"/>
+                                        <Pane HBox.hgrow="ALWAYS" />
+                                        <TextField fx:id="managerSearchField" prefWidth="250.0" promptText="🔍 Search product name..." />
+                                        <Button mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569;" text="↻ Refresh" />
+                                    </children>
+                                </HBox>
+
+                                <TableView fx:id="managerProductTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 15; -fx-border-radius: 15; -fx-border-color: #e2e8f0;">
+                                    <columns>
+                                        <TableColumn fx:id="mColName" prefWidth="300.0" text="Product Name" />
+                                        <TableColumn fx:id="mColCategory" prefWidth="150.0" text="Category" />
+                                        <TableColumn fx:id="mColPrice" prefWidth="120.0" text="Price ($)" />
+                                        <TableColumn fx:id="mColStock" prefWidth="120.0" text="Current Stock" />
+                                    </columns>
+                                </TableView>
+
+                                <HBox alignment="CENTER_RIGHT" spacing="15.0">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#handleDeleteProduct" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: #fef2f2; -fx-text-fill: #ef4444; -fx-border-color: #fee2e2; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold;" text="🗑 Delete Selected" />
+                                        <Button mnemonicParsing="false" onAction="#handleEditProduct" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: #fff7ed; -fx-text-fill: #f59e0b; -fx-border-color: #ffedd5; -fx-border-radius: 10; -fx-background-radius: 10; -fx-font-weight: bold;" text="📝 Edit Details" />
+                                        <Button mnemonicParsing="false" onAction="#handleAddProduct" prefHeight="45.0" prefWidth="150.0" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-background-radius: 10; -fx-font-weight: bold;" text="➕ Add New Product" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+                    </content>
+                </Tab>
+                <!-- TAB 7: USERS & LOGS -->
+                <Tab fx:id="usersLogsTab" text="👥 USERS &amp; LOGS">
+                    <content>
+                        <HBox spacing="20" style="-fx-padding: 30; -fx-background-color: #f1f5f9;">
+                            <children>
+                                <!-- User Management -->
+                                <VBox spacing="15.0" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                                    <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Manage Users" />
+                                    <TableView fx:id="userTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e2e8f0;">
+                                        <columns>
+                                            <TableColumn fx:id="colUserId" prefWidth="50" text="ID" visible="false" />
+                                            <TableColumn fx:id="colUsername" prefWidth="150" text="Username" />
+                                            <TableColumn fx:id="colUserRole" prefWidth="100" text="Role" />
+                                        </columns>
+                                    </TableView>
+                                    <GridPane hgap="10" vgap="10">
+                                        <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                                        <TextField fx:id="userUsernameField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                                        <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                                        <PasswordField fx:id="userPasswordField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                        <Label text="Role:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                                        <ComboBox fx:id="userRoleBox" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    </GridPane>
+                                    <VBox spacing="10">
+                                        <HBox spacing="10">
+                                            <Button mnemonicParsing="false" onAction="#handleCreateUser" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;" text="➕ Create User" />
+                                            <Button mnemonicParsing="false" onAction="#handleUpdateUser" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-font-weight: bold;" text="💾 Update Password/Role" />
+                                        </HBox>
+                                        <HBox spacing="10">
+                                            <Button mnemonicParsing="false" onAction="#handleDeleteUser" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: bold;" text="🗑 Delete User" />
+                                            <Button mnemonicParsing="false" onAction="#handleFormPunchIn" style="-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-font-weight: bold;" text="⏱ Punch In (Verify Password)" />
+                                        </HBox>
+                                    </VBox>
+                                </VBox>
+                                <!-- User Logs -->
+                                <VBox spacing="15.0" HBox.hgrow="ALWAYS" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10;">
+                                    <HBox alignment="CENTER_LEFT" spacing="15.0">
+                                        <Label style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1e293b;" text="Staff Timesheet" />
+                                        <Pane HBox.hgrow="ALWAYS" />
+                                        <Label text="Filter by Date:" />
+                                        <DatePicker fx:id="logDatePicker" onAction="#loadUserLogs" promptText="Select Date" />
+                                    </HBox>
+                                    <TableView fx:id="userLogTable" VBox.vgrow="ALWAYS" style="-fx-background-radius: 10; -fx-border-radius: 10; -fx-border-color: #e2e8f0;">
+                                        <columns>
+                                            <TableColumn fx:id="colLogId" prefWidth="50" text="ID" visible="false" />
+                                            <TableColumn fx:id="colLogUser" prefWidth="120" text="Username" />
+                                            <TableColumn fx:id="colLogDate" prefWidth="120" text="Date" />
+                                            <TableColumn fx:id="colLogPunchIn" prefWidth="120" text="Punch In Time" />
+                                            <TableColumn fx:id="colLogPunchOut" prefWidth="120" text="Punch Out Time" />
+                                            <TableColumn fx:id="colLogAction" prefWidth="100" text="Action" />
+                                        </columns>
+                                    </TableView>
+                                    <HBox spacing="10">
+                                        <Button mnemonicParsing="false" onAction="#loadUserLogs" style="-fx-background-color: #f1f5f9; -fx-text-fill: #475569; -fx-font-weight: bold;" text="↻ Refresh Logs" />
+                                        <Button mnemonicParsing="false" onAction="#handleExportTimesheetCSV" style="-fx-background-color: #10b981; -fx-text-fill: white; -fx-font-weight: bold;" text="📥 Export CSV" />
+                                        <Button mnemonicParsing="false" onAction="#handleDeleteTimesheetRecord" style="-fx-background-color: #ef4444; -fx-text-fill: white; -fx-font-weight: bold;" text="🗑 Delete Record" />
+                                    </HBox>
+                                </VBox>
+                            </children>
+                        </HBox>
+                    </content>
+                </Tab>
+            </tabs>
+        </TabPane>
+    </children>
+</VBox>

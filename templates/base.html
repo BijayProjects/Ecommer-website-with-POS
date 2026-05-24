@@ -1,0 +1,502 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Curator Electronics - Premium Gadgets{% endblock %}</title>
+    <meta name="description" content="Discover the pinnacle of performance with Curator Electronics. Premium laptops, smartphones, and accessories.">
+    <meta name="keywords" content="electronics, gadgets, laptops, smartphones, ecommerce, curator electronics">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Swiper.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    {% tailwind_css %}
+    
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #F9FAFB;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        @keyframes progress {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+        .timeout-progress {
+            animation: progress 4s linear forwards;
+        }
+        
+        /* Global Pointer Cursor for Interactive Elements */
+        button, a, input[type="button"], input[type="submit"], input[type="radio"], input[type="checkbox"], select, .payment-card {
+            cursor: pointer !important;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="text-slate-900 overflow-x-hidden">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <!-- Mobile Menu Toggle -->
+            <button id="mobile-menu-btn" class="md:hidden text-slate-700">
+                <i data-lucide="menu"></i>
+            </button>
+
+            <!-- Logo -->
+            <div class="flex items-center space-x-2">
+                <a href="{% url 'shop:home' %}">
+                    <span class="text-xl font-bold tracking-tight text-emerald-600">CURATOR <span class="text-slate-900 font-normal">ELECTRONICS</span></span>
+                </a>
+            </div>
+
+            <!-- Desktop Nav & Search (md+) -->
+            <div class="hidden md:flex flex-1 items-center justify-end lg:justify-between ml-4 lg:ml-8 mr-2 lg:mr-4 gap-4 lg:gap-8">
+                <!-- Nav Links -->
+                <div class="flex items-center space-x-4 lg:space-x-8 text-sm font-medium text-slate-600">
+                    <!-- Categories Dropdown -->
+                    <div class="relative group pt-2 pb-2">
+                        <button class="flex items-center space-x-1 hover:text-emerald-600 transition-colors">
+                            <span>Categories</span>
+                            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                        </button>
+                        <div class="absolute top-full left-0 w-64 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] transform translate-y-2 group-hover:translate-y-0">
+                            {% for cat in nav_categories %}
+                            <a href="{% url 'shop:category_products' cat.slug %}" class="block px-5 py-2.5 text-sm hover:bg-emerald-50 hover:text-emerald-600 transition-colors">{{ cat.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+
+                </div>
+
+                <!-- Desktop Inline Search (lg+ only) -->
+                <div class="hidden lg:block max-w-xl w-full relative mx-4">
+                    <form action="{% url 'shop:search' %}" method="GET" class="w-full relative">
+                        <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search products..." class="w-full bg-slate-100 border-none rounded-full py-2.5 pl-11 pr-4 text-sm focus:bg-white focus:ring-2 focus:ring-emerald-500 transition-all outline-none">
+                        <button type="submit" class="absolute left-4 top-2.5 text-slate-400 hover:text-emerald-600">
+                            <i data-lucide="search" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Icons (md+) -->
+            <div class="hidden md:flex items-center space-x-1 lg:space-x-2">
+                <!-- Tablet Search Button (md only) -->
+                <button id="tablet-search-trigger" class="flex lg:hidden p-2.5 bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-600 rounded-full transition-colors mr-1">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+                {% if user.is_authenticated %}
+                <a href="{% url 'shop:cart' %}" class="p-2 hover:bg-slate-100 rounded-full transition-colors relative block">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 text-slate-600"></i>
+                    {% if cart_item_count > 0 %}
+                    <span class="absolute -top-0.5 -right-0.5 bg-emerald-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{{ cart_item_count }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'shop:favorites' %}" class="p-2 hover:bg-slate-100 rounded-full transition-colors relative block">
+                    <i data-lucide="heart" class="w-5 h-5 text-slate-600"></i>
+                    {% if favorite_product_ids|length > 0 %}
+                    <span class="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center leading-none">{{ favorite_product_ids|length }}</span>
+                    {% endif %}
+                </a>
+                {% endif %}
+                <div class="relative" id="user-menu-container">
+                    <button id="user-menu-btn" class="p-2 hover:bg-slate-100 rounded-full transition-colors flex items-center space-x-1">
+                        <i data-lucide="user" class="w-5 h-5 text-slate-600"></i>
+                        {% if user.is_authenticated %}
+                        <span class="hidden lg:block text-xs font-bold text-slate-700 max-w-[80px] truncate">{{ user.username }}</span>
+                        {% endif %}
+                    </button>
+                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50">
+                        {% if user.is_authenticated %}
+                        <div class="px-4 py-3 border-b border-slate-100">
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Signed in as</p>
+                            <p class="font-bold text-slate-900 truncate">{{ user.username }}</p>
+                        </div>
+                        <a href="{% url 'shop:cart' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700">
+                            <i data-lucide="shopping-cart" class="w-4 h-4 text-slate-400"></i>
+                            <span>My Cart</span>
+                        </a>
+                        <a href="{% url 'shop:user_dashboard' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700">
+                            <i data-lucide="package" class="w-4 h-4 text-slate-400"></i>
+                            <span>My Orders</span>
+                        </a>
+                        {% if user.is_staff %}
+                        <a href="{% url 'shop:admin_dashboard' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-sm font-semibold text-emerald-600 border-t border-slate-50">
+                            <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                            <span>Admin Dashboard</span>
+                        </a>
+                        {% endif %}
+                        <a href="{% url 'shop:logout' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-50 transition-colors text-sm font-semibold text-red-600">
+                            <i data-lucide="log-out" class="w-4 h-4"></i>
+                            <span>Sign Out</span>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'shop:login' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-slate-50 transition-colors text-sm font-semibold text-slate-700">
+                            <i data-lucide="log-in" class="w-4 h-4 text-slate-400"></i>
+                            <span>Sign In</span>
+                        </a>
+                        <a href="{% url 'shop:register' %}" class="flex items-center space-x-3 px-4 py-3 hover:bg-emerald-50 transition-colors text-sm font-semibold text-emerald-600">
+                            <i data-lucide="user-plus" class="w-4 h-4 text-slate-400"></i>
+                            <span>Register</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Global Search Bar (Mobile only below nav) -->
+        <div class="md:hidden px-4 pb-4 max-w-4xl mx-auto">
+            <form action="{% url 'shop:search' %}" method="GET" class="relative">
+                <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search the collection..." class="w-full bg-slate-100 border-none rounded-xl py-3 pl-11 text-sm focus:ring-2 focus:ring-emerald-500 outline-none transition-all focus:bg-white shadow-sm">
+                <button type="submit" class="absolute left-3.5 top-3 text-slate-400 hover:text-emerald-600 cursor-pointer">
+                    <i data-lucide="search" class="w-5 h-5"></i>
+                </button>
+            </form>
+        </div>
+        
+        <!-- Category Pill Navigation (Hidden on Mobile) -->
+        <div class="hidden md:hidden flex space-x-3 overflow-x-auto px-4 pb-4 no-scrollbar max-w-4xl mx-auto justify-start">
+            <a href="{% url 'shop:home' %}" class="{% if request.path == '/' %}bg-emerald-600 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %} px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors transition-all shadow-sm">ALL TECH</a>
+            {% for cat in nav_categories %}
+            <a href="{% url 'shop:category_products' cat.slug %}" class="{% if category and category.slug == cat.slug %}bg-emerald-600 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %} px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap uppercase transition-colors transition-all shadow-sm">{{ cat.name }}</a>
+            {% endfor %}
+            <a href="{% url 'shop:deals' %}" class="{% if is_deals_page %}bg-emerald-600 text-white{% else %}bg-slate-100 text-slate-600 hover:bg-slate-200{% endif %} px-5 py-2.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors transition-all shadow-sm">HOT DEALS</a>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer (As per design) -->
+    <footer class="bg-slate-950 text-white pt-20 pb-28 md:pb-10 border-t border-slate-900">
+        <div class="container mx-auto px-4 max-w-7xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+                <!-- Brand Info -->
+                <div class="pr-0 md:pr-8">
+                    <a href="{% url 'shop:home' %}" class="inline-block mb-6">
+                        <span class="text-2xl font-black tracking-tight text-emerald-500">CURATOR <span class="text-white font-normal">ELECTRONICS</span></span>
+                    </a>
+                    <p class="text-slate-400 text-sm leading-relaxed mb-8">Defining the future of digital lifestyles through high-end professional curation. Experience technology like never before with our premium selection.</p>
+                    <div class="flex items-center space-x-3">
+                        <!-- Twitter/X -->
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all group">
+                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 22.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.008 5.961h-1.96z" />
+                            </svg>
+                        </a>
+                        <!-- Instagram -->
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all group">
+                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <!-- Facebook -->
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all group">
+                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        <!-- TikTok -->
+                        <a href="#" class="w-10 h-10 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-400 hover:border-emerald-500/30 transition-all group">
+                            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                              <path d="M12.53.02C13.84 0 15.14.01 16.44 0c.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.12-3.44-3.17-3.61-5.46-.21-2.04.53-4.14 1.97-5.59 1.33-1.35 3.25-2.14 5.16-2.19.16-.01.32-.01.48-.01.01 2.9.01 5.81 0 8.71-.23-.05-.46-.11-.68-.17-1.16-.36-2.06-1.37-2.3-2.58-.19-.94.04-1.95.63-2.73.61-.83 1.63-1.35 2.66-1.35 1.53.03 2.82 1.25 3.03 2.77.1 1.05.05 2.12.05 3.18V.02z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links Sections -->
+                <div>
+                    <h4 class="font-black mb-6 text-sm uppercase tracking-widest text-emerald-500">Shop</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm font-medium">
+                        <li><a href="{% url 'shop:deals' %}" class="hover:text-emerald-400 hover:translate-x-1 inline-block transition-transform duration-300">Hot Deals</a></li>
+                        <li><a href="{% url 'shop:new_arrivals' %}" class="hover:text-emerald-400 hover:translate-x-1 inline-block transition-transform duration-300">New Arrivals</a></li>
+                        <li><a href="{% url 'shop:all_products' %}" class="hover:text-emerald-400 hover:translate-x-1 inline-block transition-transform duration-300">All Products</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-black mb-6 text-sm uppercase tracking-widest text-emerald-500">Company</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm font-medium">
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">About Us</a></li>
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Sustainability</a></li>
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Careers</a></li>
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-black mb-6 text-sm uppercase tracking-widest text-emerald-500">Support</h4>
+                    <ul class="space-y-4 text-slate-400 text-sm font-medium">
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Refund Policy</a></li>
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Shipping Policy</a></li>
+                        <li><a href="#" class="hover:text-white hover:translate-x-1 inline-block transition-transform duration-300">Technical Support</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Bottom Bar -->
+            <div class="pt-8 border-t border-slate-800/50 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs font-semibold text-slate-500">© 2026 Curator Electronics. All rights reserved.</p>
+                <div class="flex items-center space-x-6 text-xs font-bold text-slate-500">
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Global Bottom Navigation (Mobile Only) -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-lg border-t border-slate-100 px-8 py-3 flex justify-between items-center z-50 shadow-[0_-10px_25px_-5px_rgba(0,0,0,0.05)] md:max-w-md md:mx-auto md:mb-6 md:rounded-full md:border md:shadow-2xl">
+        <a href="{% url 'shop:home' %}" class="flex flex-col items-center space-y-1 {% if request.path == '/' %}text-emerald-600{% else %}text-slate-400 hover:text-emerald-500{% endif %} transition-colors">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold uppercase tracking-tighter">HOME</span>
+        </a>
+        <a href="{% url 'shop:deals' %}" class="flex flex-col items-center space-y-1 {% if is_deals_page %}text-emerald-600{% else %}text-slate-400 hover:text-emerald-500{% endif %} transition-colors">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold uppercase tracking-tighter">DEALS</span>
+        </a>
+        <div class="relative">
+            <a href="{% url 'shop:cart' %}" class="flex flex-col items-center space-y-1 {% if '/cart/' in request.path %}text-emerald-600{% else %}text-slate-400 hover:text-emerald-500{% endif %} transition-colors">
+                <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                <span class="text-[9px] font-bold uppercase tracking-tighter">CART</span>
+            </a>
+            {% if cart_item_count > 0 %}
+            <span class="absolute -top-1 -right-1 bg-emerald-500 text-white text-[8px] font-bold rounded-full w-4 h-4 flex items-center justify-center border-2 border-white shadow-sm animate-pulse">{{ cart_item_count }}</span>
+            {% endif %}
+        </div>
+        <a href="{% if user.is_authenticated %}{% url 'shop:user_dashboard' %}{% else %}{% url 'shop:login' %}{% endif %}" class="flex flex-col items-center space-y-1 text-slate-400 hover:text-emerald-500 transition-colors">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-[9px] font-bold uppercase tracking-tighter">ACCOUNT</span>
+        </a>
+    </div>
+
+    <!-- Global Flash Messages Toast -->
+    {% if messages %}
+    <div id="toast-container" class="fixed top-24 right-4 z-[200] flex flex-col space-y-3">
+        {% for message in messages %}
+        <div class="toast-msg relative overflow-hidden flex items-center space-x-3 px-5 py-4 rounded-2xl shadow-xl text-sm font-semibold max-w-[350px] min-w-[250px] animate-fade-in-up {% if message.tags == 'error' %}bg-red-600 text-white{% else %}bg-slate-900 text-white{% endif %}">
+            {% if message.tags == 'error' %}
+            <i data-lucide="alert-circle" class="w-5 h-5 flex-shrink-0 text-red-200"></i>
+            {% else %}
+            <i data-lucide="check-circle" class="w-5 h-5 flex-shrink-0 text-emerald-400"></i>
+            {% endif %}
+            <span class="flex-grow pr-6">{{ message }}</span>
+            <button class="close-toast-btn absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors cursor-pointer">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+            <div class="absolute bottom-0 left-0 h-1 {% if message.tags == 'error' %}bg-red-400{% else %}bg-emerald-500{% endif %} timeout-progress"></div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Search Lightbox Modal -->
+    <div id="search-lightbox" class="fixed inset-0 z-[100] hidden bg-slate-900/80 backdrop-blur-sm opacity-0 transition-opacity duration-300 flex items-start justify-center pt-24 md:pt-32 px-4">
+        <div class="bg-white w-full max-w-2xl rounded-3xl p-6 md:p-8 shadow-2xl relative transform -translate-y-4 transition-transform duration-300" id="search-modal-content">
+            <button id="close-search-btn" class="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-900 rounded-full hover:bg-slate-100 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h2 class="text-xl md:text-2xl font-bold text-slate-900 mb-6 text-center">What are you looking for?</h2>
+            
+            <form action="{% url 'shop:search' %}" method="GET" class="flex items-center bg-slate-50 border border-slate-200 rounded-2xl px-5 py-3.5 group focus-within:border-emerald-500 focus-within:bg-white transition-all shadow-inner">
+                <button type="submit" aria-label="Search" class="mr-3 shrink-0 cursor-pointer focus:outline-none">
+                    <i data-lucide="search" class="w-5 h-5 text-slate-400 group-focus-within:text-emerald-500 transition-colors"></i>
+                </button>
+                <input type="text" name="q" id="lightbox-search-input" value="{{ search_query|default:'' }}" placeholder="Search laptops, audio, smartphones..." class="w-full bg-transparent border-none text-base outline-none placeholder-slate-400 text-slate-700 p-0 focus:ring-0 m-0">
+            </form>
+
+            <!-- Popular Searches UI -->
+            <div class="mt-6">
+                <p class="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Popular Searches</p>
+                <div class="flex flex-wrap gap-2">
+                    <a href="{% url 'shop:search' %}?q=laptop" class="px-4 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 rounded-xl text-sm font-medium transition-colors">Laptop</a>
+                    <a href="{% url 'shop:search' %}?q=headphone" class="px-4 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 rounded-xl text-sm font-medium transition-colors">Headphones</a>
+                    <a href="{% url 'shop:search' %}?q=watch" class="px-4 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 rounded-xl text-sm font-medium transition-colors">Smartwatch</a>
+                    <a href="{% url 'shop:search' %}?q=camera" class="px-4 py-2 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 rounded-xl text-sm font-medium transition-colors">Camera</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Menu -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[200] hidden opacity-0 transition-opacity duration-300 md:hidden"></div>
+    <div id="mobile-sidebar" class="fixed top-0 left-0 bottom-0 w-72 bg-white z-[210] transform -translate-x-full transition-transform duration-300 flex flex-col md:hidden shadow-2xl">
+        <div class="p-6 flex items-center justify-between border-b border-slate-100">
+            <span class="text-xl font-bold tracking-tight text-emerald-600">CURATOR</span>
+            <button id="close-mobile-menu" class="text-slate-400 hover:text-slate-900 focus:outline-none">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        <div class="flex-1 overflow-y-auto py-6">
+            <nav class="flex flex-col space-y-1 px-4">
+                <a href="{% url 'shop:home' %}" class="px-4 py-3 text-slate-600 font-bold hover:bg-slate-50 hover:text-emerald-600 rounded-xl transition-colors flex items-center gap-3">
+                    <i data-lucide="home" class="w-5 h-5"></i>
+                    <span>Home</span>
+                </a>
+                
+                <div class="px-4 pt-6 pb-2 font-bold text-slate-400 uppercase text-xs tracking-widest">Categories</div>
+                {% for cat in nav_categories %}
+                <a href="{% url 'shop:category_products' cat.slug %}" class="px-4 py-2.5 text-slate-600 text-sm font-medium hover:bg-emerald-50 hover:text-emerald-600 transition-colors rounded-xl flex items-center gap-3">
+                    {% if cat.icon %}
+                    <i data-lucide="{{ cat.icon }}" class="w-4 h-4"></i>
+                    {% else %}
+                    <span class="w-4 h-4 rounded-full bg-slate-100"></span>
+                    {% endif %}
+                    <span>{{ cat.name }}</span>
+                </a>
+                {% endfor %}
+                
+                <div class="px-4 pt-6 pb-2 font-bold text-slate-400 uppercase text-xs tracking-widest">More</div>
+                <a href="{% url 'shop:deals' %}" class="px-4 py-3 text-slate-600 font-bold hover:bg-slate-50 hover:text-emerald-600 rounded-xl transition-colors flex items-center gap-3">
+                    <i data-lucide="zap" class="w-5 h-5"></i>
+                    <span>Hot Deals</span>
+                </a>
+                <a href="{% url 'shop:new_arrivals' %}" class="px-4 py-3 text-slate-600 font-bold hover:bg-slate-50 hover:text-emerald-600 rounded-xl transition-colors flex items-center gap-3">
+                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                    <span>New Arrivals</span>
+                </a>
+            </nav>
+        </div>
+        
+        {% if not user.is_authenticated %}
+        <div class="p-6 border-t border-slate-100 space-y-3">
+            <a href="{% url 'shop:login' %}" class="block w-full py-3 px-4 bg-slate-100 text-slate-900 font-bold text-center rounded-xl hover:bg-slate-200 transition-colors">Sign In</a>
+            <a href="{% url 'shop:register' %}" class="block w-full py-3 px-4 bg-emerald-500 text-white font-bold text-center rounded-xl hover:bg-emerald-600 transition-colors">Create Account</a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        // jQuery for interactions
+        $(document).ready(function() {
+            // Search Lightbox Toggle (Mobile & Tablet triggers)
+            const $searchLightbox = $('#search-lightbox');
+            const $searchModalContent = $('#search-modal-content');
+            const $searchInput = $('#lightbox-search-input');
+            
+            $('#mobile-search-trigger, #tablet-search-trigger').click(function(e) {
+                e.preventDefault();
+                $searchLightbox.removeClass('hidden');
+                // Trigger reflow for transition
+                $searchLightbox[0].offsetHeight;
+                $searchLightbox.removeClass('opacity-0').addClass('opacity-100');
+                $searchModalContent.removeClass('-translate-y-4').addClass('translate-y-0');
+                setTimeout(() => $searchInput.focus(), 100);
+            });
+            
+            $('#close-search-btn').click(function() {
+                $searchLightbox.removeClass('opacity-100').addClass('opacity-0');
+                $searchModalContent.removeClass('translate-y-0').addClass('-translate-y-4');
+                setTimeout(() => $searchLightbox.addClass('hidden'), 300);
+            });
+            
+            // Close when clicking outside
+            $searchLightbox.click(function(e) {
+                if (e.target === this) {
+                    $('#close-search-btn').click();
+                }
+            });
+            
+            // Mobile Menu
+            const $mobileSidebar = $('#mobile-sidebar');
+            const $mobileOverlay = $('#mobile-menu-overlay');
+
+            $("#mobile-menu-btn").click(function(e) {
+                e.preventDefault();
+                $mobileOverlay.removeClass('hidden');
+                // trigger reflow
+                $mobileOverlay[0].offsetHeight;
+                $mobileOverlay.removeClass('opacity-0');
+                $mobileSidebar.removeClass('-translate-x-full');
+            });
+
+            $("#close-mobile-menu, #mobile-menu-overlay").click(function() {
+                $mobileSidebar.addClass('-translate-x-full');
+                $mobileOverlay.addClass('opacity-0');
+                setTimeout(() => $mobileOverlay.addClass('hidden'), 300);
+            });
+            
+            // User Dropdown Toggle
+            $('#user-menu-btn').click(function(e) {
+                e.stopPropagation();
+                $('#user-dropdown').toggleClass('hidden');
+            });
+            
+            $(document).click(function(e) {
+                if (!$('#user-menu-container').is(e.target) && $('#user-menu-container').has(e.target).length === 0) {
+                    $('#user-dropdown').addClass('hidden');
+                }
+            });
+            
+            // Auto-dismiss toasts after 4 seconds
+            setTimeout(function() {
+                $('.toast-msg').fadeOut(500, function() { $(this).remove(); });
+            }, 4000);
+            
+            // Manual dismiss toasts
+            $('.close-toast-btn').click(function() {
+                var toast = $(this).closest('.toast-msg');
+                toast.fadeOut(300, function() { $(this).remove(); });
+            });
+        });
+    </script>
+    <!-- Custom Swiper Styles -->
+    <style>
+        .swiper-button-next, .swiper-button-prev {
+            width: 48px !important;
+            height: 48px !important;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(8px) !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            transition: all 0.3s ease !important;
+        }
+        .swiper-button-next:after, .swiper-button-prev:after {
+            font-size: 18px !important;
+            font-weight: bold !important;
+        }
+        .swiper-button-next:hover, .swiper-button-prev:hover {
+            background: #10b981 !important;
+            border-color: #10b981 !important;
+            transform: scale(1.05);
+        }
+        .swiper-pagination-bullet {
+            width: 12px;
+            height: 4px;
+            border-radius: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+        .swiper-pagination-bullet-active {
+            width: 24px;
+            background: #10b981;
+        }
+    </style>
+</body>
+</html>

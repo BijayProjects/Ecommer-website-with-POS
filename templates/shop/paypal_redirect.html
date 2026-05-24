@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting to PayPal...</title>
+</head>
+<body onload="document.getElementById('paypal-form').submit();">
+    <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+        <h2>Connecting to Secure PayPal Gateway...</h2>
+        <p>Please do not refresh the page or close the window.</p>
+        
+        <form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="POST" id="paypal-form">
+            <!-- Command to use standard PayPal Button flow -->
+            <input type="hidden" name="cmd" value="_xclick">
+            
+            <!-- Your Sandbox Merchant Email -->
+            <input type="hidden" name="business" value="{{ business_email }}">
+            
+            <!-- Order Details -->
+            <input type="hidden" name="item_name" value="{{ item_name }}">
+            <input type="hidden" name="amount" value="{{ amount }}">
+            <input type="hidden" name="currency_code" value="USD">
+            
+            <!-- Return and Cancel URLs -->
+            <input type="hidden" name="return" value="{{ return_url }}">
+            <input type="hidden" name="cancel_return" value="{{ cancel_url }}">
+            
+            <button type="submit" style="display: none;">Continue to PayPal</button>
+        </form>
+    </div>
+</body>
+</html>

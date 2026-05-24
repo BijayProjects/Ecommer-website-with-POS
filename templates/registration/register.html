@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% block title %}Create Account - Curator Electronics{% endblock %}
+
+{% block content %}
+<section class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center px-4 py-16">
+    <div class="w-full max-w-sm animate-fade-in-up">
+
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="{% url 'shop:home' %}">
+                <span class="text-3xl font-black tracking-tighter text-slate-900">CURATOR<span class="text-emerald-500">.</span></span>
+            </a>
+            <h1 class="text-2xl font-bold text-slate-900 mt-4 mb-1">Create an Account</h1>
+            <p class="text-slate-500 text-sm">Join thousands of happy shoppers today.</p>
+        </div>
+
+        <!-- Errors / Messages -->
+        {% if form.non_field_errors %}
+        <div class="mb-4 px-4 py-3 rounded-xl text-sm font-semibold bg-red-100 text-red-700 border border-red-200">
+            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+            <div class="mb-4 px-4 py-3 rounded-xl text-sm font-semibold {% if message.tags == 'error' %}bg-red-100 text-red-700 border border-red-200{% else %}bg-emerald-100 text-emerald-700 border border-emerald-200{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Card -->
+        <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-8">
+            <form method="POST" action="{% url 'shop:register' %}" novalidate>
+                {% csrf_token %}
+
+                <!-- Username -->
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Username</label>
+                    <div class="flex items-center border {% if form.username.errors %}border-red-400 bg-red-50{% else %}border-slate-200 bg-slate-50{% endif %} rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-transparent focus-within:bg-white transition-all">
+                        <span class="pl-3.5 flex-shrink-0 text-slate-400">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                        </span>
+                        <input type="text" name="username" required autofocus
+                            value="{{ form.username.value|default:'' }}"
+                            placeholder="Choose a username"
+                            class="flex-1 bg-transparent border-none text-slate-900 text-sm px-3 py-3 focus:outline-none focus:ring-0 placeholder-slate-400">
+                    </div>
+                    {% if form.username.errors %}<p class="text-red-500 text-xs mt-1.5">{{ form.username.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Password</label>
+                    <div class="flex items-center border {% if form.password1.errors %}border-red-400 bg-red-50{% else %}border-slate-200 bg-slate-50{% endif %} rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-transparent focus-within:bg-white transition-all pr-1">
+                        <span class="pl-3.5 flex-shrink-0 text-slate-400">
+                            <i data-lucide="lock" class="w-4 h-4"></i>
+                        </span>
+                        <input id="id_password1" type="password" name="password1" required
+                            placeholder="Create a strong password"
+                            class="flex-1 bg-transparent border-none text-slate-900 text-sm px-3 py-3 focus:outline-none focus:ring-0 placeholder-slate-400">
+                        <button type="button" class="text-slate-400 hover:text-emerald-500 transition-colors p-2 focus:outline-none toggle-password" data-target="id_password1">
+                            <i data-lucide="eye" class="w-4 h-4 icon-eye"></i>
+                            <i data-lucide="eye-off" class="w-4 h-4 icon-eye-off hidden"></i>
+                        </button>
+                    </div>
+                    {% if form.password1.errors %}<p class="text-red-500 text-xs mt-1.5">{{ form.password1.errors.0 }}</p>{% endif %}
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="mb-7">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Confirm Password</label>
+                    <div class="flex items-center border {% if form.password2.errors %}border-red-400 bg-red-50{% else %}border-slate-200 bg-slate-50{% endif %} rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 focus-within:border-transparent focus-within:bg-white transition-all pr-1">
+                        <span class="pl-3.5 flex-shrink-0 text-slate-400">
+                            <i data-lucide="shield-check" class="w-4 h-4"></i>
+                        </span>
+                        <input id="id_password2" type="password" name="password2" required
+                            placeholder="Re-enter your password"
+                            class="flex-1 bg-transparent border-none text-slate-900 text-sm px-3 py-3 focus:outline-none focus:ring-0 placeholder-slate-400">
+                        <button type="button" class="text-slate-400 hover:text-emerald-500 transition-colors p-2 focus:outline-none toggle-password" data-target="id_password2">
+                            <i data-lucide="eye" class="w-4 h-4 icon-eye"></i>
+                            <i data-lucide="eye-off" class="w-4 h-4 icon-eye-off hidden"></i>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}<p class="text-red-500 text-xs mt-1.5">{{ form.password2.errors.0 }}</p>{% endif %}
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-slate-900 hover:bg-emerald-600 text-white font-bold py-3.5 rounded-xl transition-colors text-sm shadow-lg shadow-slate-900/20">
+                    Create My Account
+                </button>
+            </form>
+
+            <p class="text-center text-slate-500 text-sm mt-6">
+                Already have an account?
+                <a href="{% url 'shop:login' %}" class="text-emerald-600 font-bold hover:underline ml-1">Sign In</a>
+            </p>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="mt-6 flex items-center justify-center space-x-5 text-slate-400">
+            <div class="flex items-center space-x-1.5 text-[11px] font-bold uppercase tracking-wider">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>SSL Secured</span>
+            </div>
+            <span class="text-slate-300">|</span>
+            <div class="flex items-center space-x-1.5 text-[11px] font-bold uppercase tracking-wider">
+                <i data-lucide="lock" class="w-3.5 h-3.5 text-emerald-500"></i>
+                <span>Private & Safe</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.toggle-password');
+        toggleButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const eyeIcon = this.querySelector('.icon-eye');
+                const eyeOffIcon = this.querySelector('.icon-eye-off');
+                
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    eyeIcon.classList.add('hidden');
+                    eyeOffIcon.classList.remove('hidden');
+                } else {
+                    input.type = 'password';
+                    eyeIcon.classList.remove('hidden');
+                    eyeOffIcon.classList.add('hidden');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

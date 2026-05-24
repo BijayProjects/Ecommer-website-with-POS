@@ -1,0 +1,414 @@
+{% extends "base.html" %}
+
+{% block title %}My Orders - Curator Electronics{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <!-- Hero Header -->
+    <div class="bg-slate-900 text-white">
+        <div class="container mx-auto px-4 py-10 max-w-6xl">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <p class="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-1">My Account</p>
+                    <h1 class="text-3xl md:text-4xl font-bold tracking-tight">My Orders</h1>
+                    <p class="text-slate-400 mt-2 text-sm">Track your orders and download receipts</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 rounded-full bg-emerald-500/20 border-2 border-emerald-500/50 flex items-center justify-center">
+                        <i data-lucide="user" class="w-6 h-6 text-emerald-400"></i>
+                    </div>
+                    <div>
+                        <p class="font-bold text-white">{{ user.username }}</p>
+                        <p class="text-slate-400 text-xs">{{ user.email|default:"No email set" }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Stats Cards -->
+        <div class="gap-5 -mt-8 mb-10" style="display: grid; grid-template-columns: repeat(3, 1fr);">
+            <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <i data-lucide="package" class="w-6 h-6 text-blue-500"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Orders</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ total_orders }}</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
+                    <i data-lucide="clock" class="w-6 h-6 text-amber-500"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Pending</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ pending_orders }}</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Delivered</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ delivered_orders }}</p>
+                </div>
+            </div>
+        </div>
+
+        {% if not user.email %}
+        <!-- Email Update Form -->
+        <div class="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6">
+            <div class="flex items-start space-x-4 mb-4">
+                <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="mail" class="w-5 h-5 text-amber-600"></i>
+                </div>
+                <div>
+                    <p class="font-bold text-amber-800 text-sm">Set your email to track orders</p>
+                    <p class="text-amber-700 text-xs mt-1">Link your email so we can match your orders and send you updates.</p>
+                </div>
+            </div>
+            <form method="POST" action="{% url 'shop:update_email' %}" class="flex items-center gap-3">
+                {% csrf_token %}
+                <input type="email" name="email" required placeholder="you@example.com" 
+                    class="flex-1 bg-white border border-amber-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder-slate-400">
+                <button type="submit" 
+                    class="flex items-center space-x-2 px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-xl transition-colors shadow-lg shadow-emerald-500/20 flex-shrink-0">
+                    <i data-lucide="save" class="w-4 h-4"></i>
+                    <span>Save Email</span>
+                </button>
+            </form>
+        </div>
+        {% endif %}
+
+        {% if orders %}
+        <!-- Order List -->
+        <div class="space-y-5">
+            {% for order in orders %}
+            <div class="bg-white rounded-2xl shadow-md shadow-slate-200/40 border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <!-- Order Header -->
+                <div class="p-5 md:p-6 border-b border-slate-100">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 rounded-xl flex items-center justify-center
+                                {% if order.status == 'delivered' %}bg-emerald-50
+                                {% elif order.status == 'shipped' %}bg-blue-50
+                                {% elif order.status == 'processing' %}bg-indigo-50
+                                {% elif order.status == 'cancelled' %}bg-red-50
+                                {% else %}bg-amber-50{% endif %}">
+                                <i data-lucide="{% if order.status == 'delivered' %}check-circle{% elif order.status == 'shipped' %}truck{% elif order.status == 'processing' %}loader{% elif order.status == 'cancelled' %}x-circle{% else %}clock{% endif %}" 
+                                   class="w-5 h-5
+                                   {% if order.status == 'delivered' %}text-emerald-500
+                                   {% elif order.status == 'shipped' %}text-blue-500
+                                   {% elif order.status == 'processing' %}text-indigo-500
+                                   {% elif order.status == 'cancelled' %}text-red-500
+                                   {% else %}text-amber-500{% endif %}"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-lg">Order #{{ order.id|stringformat:"05d" }}</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">{{ order.created_at|date:"M d, Y • h:i A" }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <!-- Status Badge -->
+                            <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wide
+                                {% if order.status == 'delivered' %}bg-emerald-100 text-emerald-700
+                                {% elif order.status == 'shipped' %}bg-blue-100 text-blue-700
+                                {% elif order.status == 'processing' %}bg-indigo-100 text-indigo-700
+                                {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                                {% else %}bg-amber-100 text-amber-700{% endif %}">
+                                {{ order.get_status_display }}
+                            </span>
+                            <!-- Paid Badge -->
+                            {% if order.paid %}
+                            <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 flex items-center space-x-1">
+                                <i data-lucide="check" class="w-3 h-3"></i>
+                                <span>Paid</span>
+                            </span>
+                            {% else %}
+                            <span class="px-3 py-1.5 rounded-full text-xs font-bold bg-red-50 text-red-500 flex items-center space-x-1">
+                                <i data-lucide="x" class="w-3 h-3"></i>
+                                <span>Unpaid</span>
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Tracking Timeline -->
+                <div class="px-5 md:px-6 py-4 bg-slate-50/70">
+                    <div class="flex items-center justify-between max-w-lg mx-auto">
+                        {% with statuses="pending,processing,shipped,delivered" %}
+                        {% for step in statuses|make_list %}
+                        {% endfor %}
+                        {% endwith %}
+                        
+                        <!-- Step: Pending -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                                {% if order.status == 'pending' or order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}
+                                bg-emerald-500 text-white{% else %}bg-slate-200 text-slate-400{% endif %}">
+                                <i data-lucide="check" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-[10px] font-bold mt-1.5 text-slate-500">Placed</span>
+                        </div>
+                        
+                        <div class="flex-1 h-1 mx-1 rounded-full {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}bg-emerald-400{% else %}bg-slate-200{% endif %}"></div>
+                        
+                        <!-- Step: Processing -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                                {% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}
+                                bg-emerald-500 text-white{% else %}bg-slate-200 text-slate-400{% endif %}">
+                                <i data-lucide="{% if order.status == 'processing' or order.status == 'shipped' or order.status == 'delivered' %}check{% else %}minus{% endif %}" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-[10px] font-bold mt-1.5 text-slate-500">Processing</span>
+                        </div>
+                        
+                        <div class="flex-1 h-1 mx-1 rounded-full {% if order.status == 'shipped' or order.status == 'delivered' %}bg-emerald-400{% else %}bg-slate-200{% endif %}"></div>
+                        
+                        <!-- Step: Shipped -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                                {% if order.status == 'shipped' or order.status == 'delivered' %}
+                                bg-emerald-500 text-white{% else %}bg-slate-200 text-slate-400{% endif %}">
+                                <i data-lucide="{% if order.status == 'shipped' or order.status == 'delivered' %}check{% else %}minus{% endif %}" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-[10px] font-bold mt-1.5 text-slate-500">Shipped</span>
+                        </div>
+                        
+                        <div class="flex-1 h-1 mx-1 rounded-full {% if order.status == 'delivered' %}bg-emerald-400{% else %}bg-slate-200{% endif %}"></div>
+                        
+                        <!-- Step: Delivered -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                                {% if order.status == 'delivered' %}
+                                bg-emerald-500 text-white{% else %}bg-slate-200 text-slate-400{% endif %}">
+                                <i data-lucide="{% if order.status == 'delivered' %}check{% else %}minus{% endif %}" class="w-4 h-4"></i>
+                            </div>
+                            <span class="text-[10px] font-bold mt-1.5 text-slate-500">Delivered</span>
+                        </div>
+                    </div>
+                    
+                    {% if order.status == 'cancelled' %}
+                    <div class="mt-3 flex items-center justify-center space-x-2 text-red-500">
+                        <i data-lucide="x-circle" class="w-4 h-4"></i>
+                        <span class="text-xs font-bold">This order has been cancelled</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Order Items & Details -->
+                <div class="p-5 md:p-6">
+                    <div class="flex flex-col md:flex-row md:items-start justify-between gap-6">
+                        <!-- Items List -->
+                        <div class="flex-1">
+                            <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Items Ordered</p>
+                            <div class="space-y-2.5">
+                                {% for item in order.items.all %}
+                                <div class="flex items-center justify-between py-2 px-3 bg-slate-50 rounded-xl">
+                                    <div class="flex items-center space-x-3">
+                                        {% if item.product.image %}
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="w-10 h-10 rounded-lg object-cover border border-slate-200">
+                                        {% else %}
+                                        <div class="w-10 h-10 rounded-lg bg-slate-200 flex items-center justify-center">
+                                            <i data-lucide="package" class="w-5 h-5 text-slate-400"></i>
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <p class="text-sm font-semibold text-slate-800">{{ item.product.name }}</p>
+                                            <p class="text-xs text-slate-400">Qty: {{ item.quantity }} × ${{ item.price }}</p>
+                                        </div>
+                                    </div>
+                                    <p class="font-bold text-sm text-slate-700">${{ item.get_cost|floatformat:2 }}</p>
+                                </div>
+                                {% empty %}
+                                <p class="text-sm text-slate-400 italic">No items (POS sale)</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Order Summary & Actions -->
+                        <div class="md:w-72 space-y-4">
+                            <!-- Delivery Address -->
+                            <div class="bg-slate-50 rounded-xl p-4">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Ship To</p>
+                                <p class="text-sm font-semibold text-slate-700">{{ order.address }}</p>
+                                <p class="text-xs text-slate-500">{{ order.city }}{% if order.postal_code %}, {{ order.postal_code }}{% endif %}</p>
+                                <p class="text-xs text-slate-500">{{ order.country }}</p>
+                            </div>
+
+                            <!-- Payment / Total -->
+                            <div class="bg-slate-50 rounded-xl p-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Payment</p>
+                                    <span class="text-xs font-semibold text-slate-600">{{ order.get_payment_method_display }}</span>
+                                </div>
+                                <div class="flex items-center justify-between pt-2 border-t border-slate-200">
+                                    <p class="text-sm font-bold text-slate-500">Total</p>
+                                    <p class="text-xl font-bold text-emerald-600">${{ order.total_amount|floatformat:2 }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex flex-col space-y-2">
+                                <a href="{% url 'shop:receipt' order.id %}" target="_blank" 
+                                   class="flex items-center justify-center space-x-2 px-4 py-3 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-slate-800 transition-colors shadow-lg shadow-slate-900/20">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                    <span>View Receipt</span>
+                                </a>
+                                <a href="{% url 'shop:receipt_pdf' order.id %}" 
+                                   class="flex items-center justify-center space-x-2 px-4 py-3 bg-emerald-500 text-white rounded-xl font-bold text-sm hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-500/20">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    <span>Download PDF</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-20">
+            <div class="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-6">
+                <i data-lucide="package" class="w-12 h-12 text-slate-300"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">No Orders Yet</h2>
+            <p class="text-slate-400 max-w-md mx-auto mb-8">You haven't placed any orders yet. Start shopping and your orders will appear here for easy tracking.</p>
+            <a href="{% url 'shop:all_products' %}" class="inline-flex items-center space-x-2 px-8 py-4 bg-emerald-500 text-white rounded-2xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5">
+                <i data-lucide="shopping-bag" class="w-5 h-5"></i>
+                <span>Start Shopping</span>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+    </div>
+</div>
+
+{% if pending_review_product %}
+<!-- Review Popup Modal -->
+<div id="reviewModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="closeReviewModal()"></div>
+    
+    <!-- Modal Content -->
+    <div class="relative bg-white rounded-[2rem] shadow-2xl shadow-emerald-900/20 w-full max-w-md overflow-hidden transform transition-all scale-95 opacity-0 duration-300" id="modalContainer">
+        <!-- Close Button -->
+        <button onclick="closeReviewModal()" class="absolute top-6 right-6 text-slate-400 hover:text-slate-600 transition-colors z-10">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        
+        <div class="p-8 pt-10">
+            <div class="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mb-6 mx-auto">
+                <i data-lucide="star" class="w-10 h-10 text-emerald-500 fill-emerald-500"></i>
+            </div>
+            
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-900 mb-2">How's your new gear?</h2>
+                <p class="text-slate-500 text-sm">You recently received <span class="font-bold text-slate-800">{{ pending_review_product.name }}</span>. We'd love to hear your thoughts!</p>
+            </div>
+            
+            <form action="{% url 'shop:add_review' pending_review_product.id %}" method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Star Rating -->
+                <div class="flex flex-col items-center">
+                    <div class="flex space-x-2">
+                        {% for i in "12345"|make_list %}
+                        <button type="button" onclick="setRating({{ i }})" class="star-btn p-1 transition-all hover:scale-125 focus:outline-none" data-rating="{{ i }}">
+                            <i data-lucide="star" class="w-10 h-10 text-slate-200 fill-slate-200 transition-colors duration-200" id="star-{{ i }}"></i>
+                        </button>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" required>
+                    <p id="ratingText" class="text-xs font-bold text-emerald-600 mt-3 h-4 uppercase tracking-widest"></p>
+                </div>
+                
+                <!-- Comment -->
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Your Review</label>
+                    <textarea name="comment" required rows="3" 
+                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder-slate-400 resize-none"
+                        placeholder="Tell us about the quality, features, or anything else..."></textarea>
+                </div>
+                
+                <div class="flex gap-4 pt-2">
+                    <button type="button" onclick="closeReviewModal()" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-slate-600 transition-colors">
+                        Skip
+                    </button>
+                    <button type="submit" class="flex-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-0.5">
+                        Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function setRating(rating) {
+        document.getElementById('ratingInput').value = rating;
+        const texts = ['', 'Disappointing', 'It\'s Okay', 'Good Product', 'Very Good', 'Absolutely Amazing!'];
+        document.getElementById('ratingText').innerText = texts[rating];
+        
+        for (let i = 1; i <= 5; i++) {
+            const star = document.getElementById('star-' + i);
+            if (i <= rating) {
+                star.classList.remove('text-slate-200', 'fill-slate-200');
+                star.classList.add('text-amber-400', 'fill-current');
+            } else {
+                star.classList.remove('text-amber-400', 'fill-current');
+                star.classList.add('text-slate-200', 'fill-slate-200');
+            }
+        }
+    }
+
+    function openReviewModal() {
+        const modal = document.getElementById('reviewModal');
+        const container = document.getElementById('modalContainer');
+        if (!modal) return;
+        
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            container.classList.remove('scale-95', 'opacity-0');
+            container.classList.add('scale-100', 'opacity-100');
+        }, 50);
+    }
+
+    function closeReviewModal() {
+        const container = document.getElementById('modalContainer');
+        container.classList.remove('scale-100', 'opacity-100');
+        container.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            document.getElementById('reviewModal').classList.add('hidden');
+        }, 300);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show after 2 seconds for better UX
+        setTimeout(openReviewModal, 2000);
+        
+        // Re-init lucide icons for the modal
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+{% endif %}
+
+<script>
+    // Re-init lucide icons for the dynamically rendered content
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    });
+</script>
+{% endblock %}
