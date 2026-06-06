@@ -1,7 +1,7 @@
 from django.urls import path, include
 from .views import HomeView, CategoryProductListView, DealsListView, ProductSearchView, cart_view, add_to_cart, checkout_view, process_payment, order_success, register_view, login_view, logout_view, toggle_favorite, favorites_view, ProductDetailView, NewArrivalsListView, AllProductsListView, receipt_view, receipt_pdf_view, esewa_verify, paypal_complete, user_dashboard, update_email, add_review, create_whatsapp_order
 from .admin_views import (
-    AdminDashboardView, AdminOrderListView, AdminOrderDetailView, AdminOrderUpdateStatusView,
+    AdminDashboardView, AdminPOSDownloadView, AdminOrderListView, AdminOrderDetailView, AdminOrderUpdateStatusView,
     AdminProductListView, AdminProductCreateView, AdminProductUpdateView, AdminProductDeleteView,
     AdminCategoryListView, AdminCategoryCreateView, AdminCategoryUpdateView
 )
@@ -37,6 +37,9 @@ urlpatterns = [
     # BACKOFFICE / ADMIN DASHBOARD
     path('admin-dashboard/', include([
         path('', AdminDashboardView.as_view(), name='admin_dashboard'),
+        
+        # POS Downloads
+        path('pos-download/', AdminPOSDownloadView.as_view(), name='admin_pos_download'),
         
         # Orders
         path('orders/', AdminOrderListView.as_view(), name='admin_order_list'),

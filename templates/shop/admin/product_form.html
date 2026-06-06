@@ -66,12 +66,12 @@
                             </select>
                         </div>
                         
-                        <div class="flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl">
+                        <div class="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg md:rounded-xl">
                             <input type="checkbox" name="is_new_arrival" id="is_new_arrival" {% if form.is_new_arrival.value %}checked{% endif %} class="w-5 h-5 rounded-md border-none bg-white text-emerald-500 focus:ring-emerald-500">
                             <label for="is_new_arrival" class="text-xs font-bold text-slate-600 cursor-pointer">Mark as New Arrival</label>
                         </div>
 
-                        <div class="flex items-center space-x-3 p-4 bg-slate-50 rounded-2xl">
+                        <div class="flex items-center space-x-3 p-4 bg-slate-50 rounded-lg md:rounded-xl">
                             <input type="checkbox" name="is_top_selling" id="is_top_selling" {% if form.is_top_selling.value %}checked{% endif %} class="w-5 h-5 rounded-md border-none bg-white text-emerald-500 focus:ring-emerald-500">
                             <label for="is_top_selling" class="text-xs font-bold text-slate-600 cursor-pointer">Mark as Top Selling</label>
                         </div>
@@ -82,13 +82,13 @@
                     <h4 class="text-sm font-black uppercase tracking-widest text-slate-400 mb-8">Visual Asset</h4>
                     <div class="space-y-4">
                         {% if object and object.image %}
-                        <div class="aspect-square rounded-2xl overflow-hidden border border-slate-100 mb-4 bg-slate-50 shadow-inner">
+                        <div class="aspect-square rounded-lg md:rounded-xl overflow-hidden border border-slate-100 mb-4 bg-slate-50 shadow-inner">
                             <img src="{{ object.image.url }}" class="w-full h-full object-cover">
                         </div>
                         {% endif %}
                         <div class="relative">
                             <input type="file" name="image" id="product_image" class="hidden">
-                            <label for="product_image" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-2xl py-8 px-4 cursor-pointer hover:bg-emerald-50 hover:border-emerald-200 transition-all group">
+                            <label for="product_image" class="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg md:rounded-xl py-8 px-4 cursor-pointer hover:bg-emerald-50 hover:border-emerald-200 transition-all group">
                                 <i data-lucide="image-plus" class="w-8 h-8 text-slate-300 group-hover:text-emerald-500 transition-colors mb-2"></i>
                                 <span class="text-xs font-black uppercase tracking-widest text-slate-400 group-hover:text-emerald-600">{% if object %}Swap Image{% else %}Upload Image{% endif %}</span>
                             </label>
@@ -99,7 +99,7 @@
         </div>
 
         <div class="flex justify-end pt-8">
-            <button type="submit" class="bg-emerald-500 text-slate-900 px-12 py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-emerald-400 shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">
+            <button type="submit" class="bg-emerald-500 text-slate-900 px-12 py-5 rounded-lg md:rounded-xl font-black text-sm uppercase tracking-widest hover:bg-emerald-400 shadow-xl shadow-emerald-500/20 active:scale-95 transition-all">
                 {% if object %}Sync Product Changes{% else %}Deploy New Product{% endif %}
             </button>
         </div>

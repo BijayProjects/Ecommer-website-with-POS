@@ -18,6 +18,10 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
 import javafx.stage.FileChooser;
+import javafx.geometry.Insets;
+import java.net.Socket;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -210,6 +214,9 @@ public class DashboardController {
     private double totalRevenueAmount = 0.0;
 
     // Printer Management
+    private static String printerType = "SYSTEM"; // "SYSTEM" or "NETWORK"
+    private static String networkPrinterIp = "192.168.1.100";
+    private static int networkPrinterPort = 9100;
     private static PrintService selectedPrinterService = null;
     private static String selectedPrinterName = null;
 
@@ -771,85 +778,157 @@ public class DashboardController {
      * Shows the printer selection dialog. Returns true if a printer was selected.
      */
     private boolean selectPrinter() {
-        PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-        if (services.length == 0) {
-            showAlert("No Printers", "No printers found on this system.");
-            return false;
-        }
-
-        List<String> printerNames = new ArrayList<>();
-        String defaultPrinter = services[0].getName();
-        boolean foundReal = false;
-
-        for (PrintService s : services) {
-            String name = s.getName();
-            printerNames.add(name);
-            
-            // Prioritize physical printers (avoid OneNote, PDF, XPS, etc.)
-            if (!foundReal) {
-                String lower = name.toLowerCase();
-                if (!lower.contains("pdf") && !lower.contains("onenote") && 
-                    !lower.contains("xps") && !lower.contains("fax") && 
-                    !lower.contains("microsoft") && !lower.contains("root")) {
-                    defaultPrinter = name;
-                    foundReal = true;
-                }
-            }
-        }
-
-        ChoiceDialog<String> dialog = new ChoiceDialog<>(defaultPrinter, printerNames);
+        Dialog<Boolean> dialog = new Dialog<>();
         dialog.setTitle("Select Printer");
-        dialog.setHeaderText("Choose a printer for bill printing");
-        dialog.setContentText("Printer:");
+        dialog.setHeaderText("Choose a printer connection type");
 
-        java.util.Optional<String> result = dialog.showAndWait();
-        if (result.isPresent()) {
-            selectedPrinterName = result.get();
-            for (PrintService s : services) {
-                if (s.getName().equals(selectedPrinterName)) {
-                    selectedPrinterService = s;
-                    break;
-                }
-            }
-            savePrinterConfig(selectedPrinterName);
-            showAlert("Printer Selected", "Bills will now auto-print to:\n" + selectedPrinterName);
-            return true;
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(20, 150, 10, 10));
+
+        ToggleGroup group = new ToggleGroup();
+        RadioButton rbSystem = new RadioButton("System/Bluetooth Printer (Wired/Paired)");
+        rbSystem.setToggleGroup(group);
+        RadioButton rbNetwork = new RadioButton("Wireless/Network Thermal Printer (IP)");
+        rbNetwork.setToggleGroup(group);
+
+        // System Printer UI
+        ComboBox<String> systemPrintersCombo = new ComboBox<>();
+        PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
+        String defaultPrinter = services.length > 0 ? services[0].getName() : "";
+        for (PrintService s : services) {
+            systemPrintersCombo.getItems().add(s.getName());
         }
-        return false;
+        if (selectedPrinterName != null && systemPrintersCombo.getItems().contains(selectedPrinterName)) {
+            systemPrintersCombo.setValue(selectedPrinterName);
+        } else if (!systemPrintersCombo.getItems().isEmpty()) {
+            systemPrintersCombo.setValue(defaultPrinter);
+        }
+
+        // Network Printer UI
+        TextField ipField = new TextField(networkPrinterIp);
+        ipField.setPromptText("192.168.1.100");
+        TextField portField = new TextField(String.valueOf(networkPrinterPort));
+        portField.setPromptText("9100");
+
+        grid.add(rbSystem, 0, 0, 2, 1);
+        grid.add(new Label("Printer:"), 0, 1);
+        grid.add(systemPrintersCombo, 1, 1);
+
+        grid.add(new Label(""), 0, 2); // spacer
+
+        grid.add(rbNetwork, 0, 3, 2, 1);
+        grid.add(new Label("IP Address:"), 0, 4);
+        grid.add(ipField, 1, 4);
+        grid.add(new Label("Port:"), 0, 5);
+        grid.add(portField, 1, 5);
+
+        // Logic to enable/disable fields
+        rbSystem.setOnAction(e -> {
+            systemPrintersCombo.setDisable(false);
+            ipField.setDisable(true);
+            portField.setDisable(true);
+        });
+        rbNetwork.setOnAction(e -> {
+            systemPrintersCombo.setDisable(true);
+            ipField.setDisable(false);
+            portField.setDisable(false);
+        });
+
+        // Set initial state
+        if (printerType.equals("NETWORK")) {
+            rbNetwork.setSelected(true);
+            systemPrintersCombo.setDisable(true);
+        } else {
+            rbSystem.setSelected(true);
+            ipField.setDisable(true);
+            portField.setDisable(true);
+        }
+
+        dialog.getDialogPane().setContent(grid);
+
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                if (rbSystem.isSelected()) {
+                    printerType = "SYSTEM";
+                    selectedPrinterName = systemPrintersCombo.getValue();
+                    for (PrintService s : services) {
+                        if (s.getName().equals(selectedPrinterName)) {
+                            selectedPrinterService = s;
+                            break;
+                        }
+                    }
+                } else {
+                    printerType = "NETWORK";
+                    networkPrinterIp = ipField.getText();
+                    try {
+                        networkPrinterPort = Integer.parseInt(portField.getText());
+                    } catch (Exception e) {
+                        networkPrinterPort = 9100;
+                    }
+                }
+                savePrinterConfig();
+                showAlert("Printer Selected", "Bills will now auto-print via " + printerType + "\n" + (printerType.equals("SYSTEM") ? selectedPrinterName : networkPrinterIp));
+                return true;
+            }
+            return false;
+        });
+
+        java.util.Optional<Boolean> result = dialog.showAndWait();
+        return result.isPresent() && result.get();
     }
 
     private void loadPrinterConfig() {
         File configFile = new File("printer_config.txt");
         if (configFile.exists()) {
             try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
-                String name = reader.readLine();
-                if (name != null && !name.isEmpty()) {
-                    PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
-                    for (PrintService s : services) {
-                        if (s.getName().equals(name)) {
-                            selectedPrinterService = s;
-                            selectedPrinterName = name;
-                            break;
+                String type = reader.readLine();
+                if (type != null) {
+                    printerType = type;
+                    if (printerType.equals("SYSTEM")) {
+                        String name = reader.readLine();
+                        if (name != null && !name.isEmpty()) {
+                            PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
+                            for (PrintService s : services) {
+                                if (s.getName().equals(name)) {
+                                    selectedPrinterService = s;
+                                    selectedPrinterName = name;
+                                    break;
+                                }
+                            }
                         }
+                    } else if (printerType.equals("NETWORK")) {
+                        networkPrinterIp = reader.readLine();
+                        try {
+                            networkPrinterPort = Integer.parseInt(reader.readLine());
+                        } catch (Exception e) {}
                     }
                 }
             } catch (Exception e) { e.printStackTrace(); }
         }
     }
 
-    private void savePrinterConfig(String name) {
+    private void savePrinterConfig() {
         try (PrintWriter writer = new PrintWriter(new File("printer_config.txt"))) {
-            writer.print(name);
+            writer.println(printerType);
+            if (printerType.equals("SYSTEM")) {
+                writer.println(selectedPrinterName != null ? selectedPrinterName : "");
+            } else {
+                writer.println(networkPrinterIp);
+                writer.println(networkPrinterPort);
+            }
         } catch (Exception e) { e.printStackTrace(); }
     }
 
     /**
      * Prints receipt text directly to the selected printer.
-     * If no printer is selected yet, shows the printer selection dialog first.
      */
     private void printReceiptToPrinter(String receiptText) {
-        // If no printer selected yet, ask user to choose one
-        if (selectedPrinterService == null) {
+        if (printerType.equals("SYSTEM") && selectedPrinterService == null) {
             if (!selectPrinter()) {
                 // User cancelled - fall back to Notepad
                 try {
@@ -859,45 +938,67 @@ public class DashboardController {
             }
         }
 
-        try {
-            PrinterJob printerJob = PrinterJob.getPrinterJob();
-            printerJob.setPrintService(selectedPrinterService);
+        if (printerType.equals("SYSTEM")) {
+            try {
+                PrinterJob printerJob = PrinterJob.getPrinterJob();
+                printerJob.setPrintService(selectedPrinterService);
 
-            final String[] lines = receiptText.split("\n");
+                final String[] lines = receiptText.split("\n");
 
-            printerJob.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
-                if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
+                printerJob.setPrintable((Graphics graphics, PageFormat pageFormat, int pageIndex) -> {
+                    if (pageIndex > 0) return Printable.NO_SUCH_PAGE;
 
-                Graphics2D g2d = (Graphics2D) graphics;
-                g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
+                    Graphics2D g2d = (Graphics2D) graphics;
+                    g2d.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
 
-                // Use a monospaced font for receipt alignment
-                Font receiptFont = new Font("Consolas", Font.PLAIN, 9);
-                g2d.setFont(receiptFont);
+                    // Use a monospaced font for receipt alignment
+                    Font receiptFont = new Font("Consolas", Font.PLAIN, 9);
+                    g2d.setFont(receiptFont);
 
-                int y = 15;
-                int lineHeight = 12;
-                for (String line : lines) {
-                    g2d.drawString(line, 5, y);
-                    y += lineHeight;
-                }
+                    int y = 15;
+                    int lineHeight = 12;
+                    for (String line : lines) {
+                        g2d.drawString(line, 5, y);
+                        y += lineHeight;
+                    }
 
-                return Printable.PAGE_EXISTS;
-            });
+                    return Printable.PAGE_EXISTS;
+                });
 
-            // Print without showing dialog (auto-print)
-            printerJob.print();
+                // Print without showing dialog (auto-print)
+                printerJob.print();
 
-        } catch (PrinterException e) {
-            e.printStackTrace();
-            // If printer fails, offer to re-select
-            showAlert("Print Failed",
-                "Could not print to: " + selectedPrinterName + "\n" +
-                "Error: " + e.getMessage() + "\n\n" +
-                "The receipt was saved to last_receipt.txt.\n" +
-                "Click 'Select Printer' to choose a different printer.");
-            selectedPrinterService = null;
-            selectedPrinterName = null;
+            } catch (PrinterException e) {
+                e.printStackTrace();
+                showAlert("Print Failed",
+                    "Could not print to: " + selectedPrinterName + "\n" +
+                    "Error: " + e.getMessage() + "\n\n" +
+                    "The receipt was saved to last_receipt.txt.");
+            }
+        } else if (printerType.equals("NETWORK")) {
+            try (Socket socket = new Socket(networkPrinterIp, networkPrinterPort)) {
+                OutputStream out = socket.getOutputStream();
+                
+                // Basic ESC/POS Initialization
+                out.write(new byte[]{0x1B, 0x40}); 
+                
+                // Write standard text
+                out.write(receiptText.getBytes(StandardCharsets.UTF_8));
+                
+                // Line feeds to scroll the paper
+                out.write(new byte[]{0x0A, 0x0A, 0x0A, 0x0A, 0x0A});
+                
+                // ESC/POS Full Paper Cut
+                out.write(new byte[]{0x1D, 0x56, 0x41, 0x00});
+                
+                out.flush();
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Network Print Failed", 
+                    "Could not connect to printer at " + networkPrinterIp + ":" + networkPrinterPort + "\n" +
+                    "Error: " + e.getMessage() + "\n\n" +
+                    "The receipt was saved to last_receipt.txt.");
+            }
         }
     }
 

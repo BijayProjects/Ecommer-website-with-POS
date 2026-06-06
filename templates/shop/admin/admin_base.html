@@ -52,6 +52,10 @@
                         <i data-lucide="layers" class="w-5 h-5"></i>
                         <span class="font-semibold">Categories</span>
                     </a>
+                    <a href="{% url 'shop:admin_pos_download' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {% if 'admin_pos_download' in request.resolver_match.url_name %}sidebar-item-active text-white{% else %}hover:bg-slate-800 hover:text-white{% endif %}">
+                        <i data-lucide="monitor-down" class="w-5 h-5"></i>
+                        <span class="font-semibold">POS Download</span>
+                    </a>
                 </nav>
 
                 <div class="mt-12">
@@ -68,7 +72,7 @@
             </div>
 
             <div class="mt-auto p-8">
-                <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
+                <div class="bg-slate-800/50 rounded-lg md:rounded-xl p-4 border border-slate-700">
                     <div class="flex items-center space-x-3 mb-3">
                         <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-white text-xs">
                             {{ request.user.username|make_list|first|upper }}
@@ -112,7 +116,7 @@
                 {% if messages %}
                 <div class="mb-8 space-y-4">
                     {% for message in messages %}
-                    <div class="p-4 rounded-2xl {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-100{% else %}bg-red-50 text-red-700 border border-red-100{% endif %} flex items-center justify-between">
+                    <div class="p-4 rounded-lg md:rounded-xl {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-100{% else %}bg-red-50 text-red-700 border border-red-100{% endif %} flex items-center justify-between">
                         <div class="flex items-center space-x-3">
                             <i data-lucide="{% if message.tags == 'success' %}check-circle{% else %}alert-circle{% endif %}" class="w-5 h-5"></i>
                             <span class="font-medium text-sm">{{ message }}</span>

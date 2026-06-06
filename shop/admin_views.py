@@ -48,6 +48,9 @@ class AdminDashboardView(StaffRequiredMixin, TemplateView):
         
         return context
 
+class AdminPOSDownloadView(StaffRequiredMixin, TemplateView):
+    template_name = 'shop/admin/pos_download.html'
+
 # Order Management
 class AdminOrderListView(StaffRequiredMixin, ListView):
     model = Order

@@ -29,7 +29,7 @@
     <div class="container mx-auto px-4 py-8 max-w-6xl">
         <!-- Stats Cards -->
         <div class="gap-5 -mt-8 mb-10" style="display: grid; grid-template-columns: repeat(3, 1fr);">
-            <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
+            <div class="bg-white rounded-lg md:rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
                 <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center">
                     <i data-lucide="package" class="w-6 h-6 text-blue-500"></i>
                 </div>
@@ -38,7 +38,7 @@
                     <p class="text-2xl font-bold text-slate-900">{{ total_orders }}</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
+            <div class="bg-white rounded-lg md:rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
                 <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center">
                     <i data-lucide="clock" class="w-6 h-6 text-amber-500"></i>
                 </div>
@@ -47,7 +47,7 @@
                     <p class="text-2xl font-bold text-slate-900">{{ pending_orders }}</p>
                 </div>
             </div>
-            <div class="bg-white rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
+            <div class="bg-white rounded-lg md:rounded-xl shadow-lg shadow-slate-200/50 border border-slate-100 p-6 flex items-center space-x-4">
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center">
                     <i data-lucide="check-circle" class="w-6 h-6 text-emerald-500"></i>
                 </div>
@@ -60,7 +60,7 @@
 
         {% if not user.email %}
         <!-- Email Update Form -->
-        <div class="mb-8 bg-amber-50 border border-amber-200 rounded-2xl p-6">
+        <div class="mb-8 bg-amber-50 border border-amber-200 rounded-lg md:rounded-xl p-6">
             <div class="flex items-start space-x-4 mb-4">
                 <div class="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
                     <i data-lucide="mail" class="w-5 h-5 text-amber-600"></i>
@@ -87,7 +87,7 @@
         <!-- Order List -->
         <div class="space-y-5">
             {% for order in orders %}
-            <div class="bg-white rounded-2xl shadow-md shadow-slate-200/40 border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
+            <div class="bg-white rounded-lg md:rounded-xl shadow-md shadow-slate-200/40 border border-slate-100 overflow-hidden hover:shadow-lg transition-shadow duration-300">
                 <!-- Order Header -->
                 <div class="p-5 md:p-6 border-b border-slate-100">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -280,7 +280,7 @@
             </div>
             <h2 class="text-2xl font-bold text-slate-900 mb-2">No Orders Yet</h2>
             <p class="text-slate-400 max-w-md mx-auto mb-8">You haven't placed any orders yet. Start shopping and your orders will appear here for easy tracking.</p>
-            <a href="{% url 'shop:all_products' %}" class="inline-flex items-center space-x-2 px-8 py-4 bg-emerald-500 text-white rounded-2xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5">
+            <a href="{% url 'shop:all_products' %}" class="inline-flex items-center space-x-2 px-8 py-4 bg-emerald-500 text-white rounded-lg md:rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:shadow-emerald-500/40 hover:-translate-y-0.5">
                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                 <span>Start Shopping</span>
             </a>
@@ -306,7 +306,7 @@
         </button>
         
         <div class="p-8 pt-10">
-            <div class="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mb-6 mx-auto">
+            <div class="w-20 h-20 bg-emerald-50 rounded-lg md:rounded-xl flex items-center justify-center mb-6 mx-auto">
                 <i data-lucide="star" class="w-10 h-10 text-emerald-500 fill-emerald-500"></i>
             </div>
             
@@ -335,7 +335,7 @@
                 <div>
                     <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-2 px-1">Your Review</label>
                     <textarea name="comment" required rows="3" 
-                        class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder-slate-400 resize-none"
+                        class="w-full bg-slate-50 border border-slate-100 rounded-lg md:rounded-xl px-5 py-4 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition-all placeholder-slate-400 resize-none"
                         placeholder="Tell us about the quality, features, or anything else..."></textarea>
                 </div>
                 
@@ -343,7 +343,7 @@
                     <button type="button" onclick="closeReviewModal()" class="flex-1 py-4 text-slate-400 font-bold text-xs uppercase tracking-widest hover:text-slate-600 transition-colors">
                         Skip
                     </button>
-                    <button type="submit" class="flex-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-2xl transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-0.5">
+                    <button type="submit" class="flex-2 px-8 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm rounded-lg md:rounded-xl transition-all shadow-lg shadow-emerald-500/30 hover:shadow-xl hover:-translate-y-0.5">
                         Submit Review
                     </button>
                 </div>

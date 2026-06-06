@@ -8,7 +8,7 @@
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-emerald-500/5 transition-all group">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-emerald-100 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-emerald-100 rounded-lg md:rounded-xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">
                 <i data-lucide="dollar-sign" class="w-6 h-6"></i>
             </div>
             <span class="text-xs font-bold text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg">+12.5%</span>
@@ -19,7 +19,7 @@
 
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-blue-500/5 transition-all group">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-blue-100 rounded-lg md:rounded-xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
                 <i data-lucide="shopping-cart" class="w-6 h-6"></i>
             </div>
             <span class="text-xs font-bold text-blue-500 bg-blue-50 px-2 py-1 rounded-lg">{{ pending_orders }} Pending</span>
@@ -30,7 +30,7 @@
 
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-purple-500/5 transition-all group">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-purple-100 rounded-lg md:rounded-xl flex items-center justify-center text-purple-600 group-hover:scale-110 transition-transform">
                 <i data-lucide="users" class="w-6 h-6"></i>
             </div>
             <span class="text-xs font-bold text-slate-400">Total reach</span>
@@ -41,7 +41,7 @@
 
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:shadow-orange-500/5 transition-all group">
         <div class="flex items-center justify-between mb-4">
-            <div class="w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
+            <div class="w-12 h-12 bg-orange-100 rounded-lg md:rounded-xl flex items-center justify-center text-orange-600 group-hover:scale-110 transition-transform">
                 <i data-lucide="box" class="w-6 h-6"></i>
             </div>
             <span class="text-xs font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-lg">Inventory</span>
@@ -77,7 +77,7 @@
         
         <div class="space-y-4 relative z-10">
             {% for p in low_stock_products %}
-            <div class="flex items-center justify-between p-3 rounded-2xl bg-white/5 border border-white/10">
+            <div class="flex items-center justify-between p-3 rounded-lg md:rounded-xl bg-white/5 border border-white/10">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 bg-white/10 rounded-xl overflow-hidden">
                         {% if p.image %}
@@ -105,158 +105,28 @@
     </div>
 </div>
 
-<!-- Desktop POS Download Banner -->
-<div class="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 p-8 md:p-10 rounded-[2.5rem] shadow-xl mb-8">
-    <!-- Animated Glow Effects -->
-    <div class="absolute top-0 right-0 w-72 h-72 bg-emerald-500/20 blur-3xl rounded-full translate-x-20 -translate-y-20 pointer-events-none animate-pulse"></div>
-    <div class="absolute bottom-0 left-40 w-48 h-48 bg-blue-500/10 blur-3xl rounded-full pointer-events-none"></div>
-    <div class="absolute bottom-10 right-40 w-36 h-36 bg-purple-500/10 blur-3xl rounded-full pointer-events-none animate-pulse"></div>
-
-    <div class="relative z-10">
-        <!-- Top Section: Title + Download -->
-        <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 mb-8">
-            <div class="flex items-center gap-6">
-                <div class="w-18 h-18 bg-gradient-to-br from-emerald-500/30 to-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-center justify-center flex-shrink-0 p-4">
-                    <i data-lucide="monitor" class="w-10 h-10 text-emerald-400"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-3 mb-1.5">
-                        <h4 class="text-white text-2xl font-black tracking-tight">Curator Desktop POS</h4>
-                        <span class="text-[10px] font-black uppercase tracking-widest bg-emerald-500 text-slate-900 px-2.5 py-1 rounded-lg">v2.0</span>
-                        <span class="text-[10px] font-bold uppercase tracking-widest bg-amber-500/20 text-amber-400 px-2.5 py-1 rounded-lg border border-amber-500/20">Updated</span>
-                    </div>
-                    <p class="text-slate-400 text-sm max-w-lg leading-relaxed">Full-featured Point of Sale terminal for Windows. Syncs with your live database in real time — manage inventory, process sales, track expenses, and handle deliveries from your desktop.</p>
-                </div>
+<!-- Desktop POS Quick Access -->
+<div class="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-900 p-6 rounded-[2rem] shadow-xl mb-8 hover:shadow-2xl transition-shadow">
+    <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/15 blur-3xl rounded-full translate-x-10 -translate-y-10 pointer-events-none"></div>
+    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-5">
+            <div class="w-14 h-14 bg-emerald-500/20 border border-emerald-500/30 rounded-lg md:rounded-xl flex items-center justify-center flex-shrink-0">
+                <i data-lucide="monitor" class="w-7 h-7 text-emerald-400"></i>
             </div>
-            <div class="flex flex-col gap-3 flex-shrink-0 w-full lg:w-auto">
-                <a href="{% static 'downloads/CuratorPOS.exe' %}" download="CuratorPOS.exe"
-                   class="group flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 transition-all text-slate-900 font-black px-8 py-4 rounded-2xl text-sm shadow-lg shadow-emerald-500/30 hover:shadow-emerald-400/40 hover:scale-105 active:scale-100">
-                    <i data-lucide="download" class="w-5 h-5 group-hover:animate-bounce"></i>
-                    Download .exe Launcher
-                </a>
-                <a href="{% static 'downloads/CuratorPOS.jar' %}" download="CuratorPOS.jar"
-                   class="group flex items-center justify-center gap-3 bg-white/10 hover:bg-white/20 transition-all text-white font-bold px-8 py-3 rounded-2xl text-xs border border-white/10 hover:border-white/20">
-                    <i data-lucide="package" class="w-4 h-4"></i>
-                    Download .jar (~22 MB)
-                </a>
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <h4 class="text-white text-lg font-black tracking-tight">Curator Desktop POS</h4>
+                    <span class="text-[9px] font-black uppercase tracking-widest bg-emerald-500 text-slate-900 px-2 py-0.5 rounded-md">v2.3</span>
+                    <span class="text-[9px] font-bold uppercase tracking-widest bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-md border border-amber-500/20">New</span>
+                </div>
+                <p class="text-slate-400 text-xs max-w-md">Full-featured POS for Windows with live DB sync. Now supports <span class="text-emerald-400 font-bold">Bluetooth, USB & Wireless IP</span> thermal printer selection.</p>
             </div>
         </div>
-
-        <!-- Feature Grid -->
-        <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:12px;margin-bottom:2rem;">
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Secure Login</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Staff authentication</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-blue-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 text-blue-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Live Sync</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Real-time database</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-purple-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-purple-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Sales Reports</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Analytics & export</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-amber-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="printer" class="w-4 h-4 text-amber-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Receipt Printing</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Physical printer support</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-rose-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="map-pin" class="w-4 h-4 text-rose-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Google Maps</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Delivery navigation</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="percent" class="w-4 h-4 text-cyan-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Discount System</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">% or flat discounts</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-orange-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="wallet" class="w-4 h-4 text-orange-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Expense Manager</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Track business costs</p>
-            </div>
-            <div class="bg-white/5 border border-white/10 rounded-2xl p-4 hover:bg-white/10 transition-colors">
-                <div class="w-9 h-9 bg-indigo-500/20 rounded-xl flex items-center justify-center mb-3">
-                    <i data-lucide="edit-3" class="w-4 h-4 text-indigo-400"></i>
-                </div>
-                <p class="text-white text-xs font-bold">Order Editing</p>
-                <p class="text-slate-500 text-[10px] mt-0.5">Full CRUD operations</p>
-            </div>
-        </div>
-
-        <!-- Bottom: Changelog + Requirements -->
-        <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
-            <!-- What's New -->
-            <div style="flex:1;min-width:300px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
-                <div class="flex items-center gap-2 mb-3">
-                    <i data-lucide="sparkles" class="w-4 h-4 text-amber-400"></i>
-                    <h5 class="text-white text-xs font-black uppercase tracking-widest">What's New in v2.0</h5>
-                </div>
-                <ul class="space-y-2">
-                    <li class="flex items-start gap-2 text-slate-400 text-xs">
-                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                        <span><span class="text-white font-bold">Google Maps Integration</span> — Copy address or open delivery location directly in Maps</span>
-                    </li>
-                    <li class="flex items-start gap-2 text-slate-400 text-xs">
-                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                        <span><span class="text-white font-bold">Discount System</span> — Apply percentage or flat discounts with live total breakdown</span>
-                    </li>
-                    <li class="flex items-start gap-2 text-slate-400 text-xs">
-                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                        <span><span class="text-white font-bold">Editable Sales Reports</span> — Edit or delete any order directly from Sales Reports</span>
-                    </li>
-                    <li class="flex items-start gap-2 text-slate-400 text-xs">
-                        <span class="text-emerald-400 mt-0.5 flex-shrink-0">✓</span>
-                        <span><span class="text-white font-bold">Scrollable Order Panel</span> — Full order details visible on any screen size</span>
-                    </li>
-                </ul>
-            </div>
-
-            <!-- System Requirements -->
-            <div style="width:240px;flex-shrink:0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;">
-                <div class="flex items-center gap-2 mb-3">
-                    <i data-lucide="cpu" class="w-4 h-4 text-slate-400"></i>
-                    <h5 class="text-white text-xs font-black uppercase tracking-widest">Requirements</h5>
-                </div>
-                <ul class="space-y-2.5">
-                    <li class="flex items-center gap-2 text-slate-400 text-xs">
-                        <i data-lucide="monitor" class="w-3.5 h-3.5 text-slate-500"></i>
-                        <span>Windows 10 / 11</span>
-                    </li>
-                    <li class="flex items-center gap-2 text-slate-400 text-xs">
-                        <i data-lucide="coffee" class="w-3.5 h-3.5 text-slate-500"></i>
-                        <span>Java 17+ Runtime</span>
-                    </li>
-                    <li class="flex items-center gap-2 text-slate-400 text-xs">
-                        <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-slate-500"></i>
-                        <span>~50 MB disk space</span>
-                    </li>
-                    <li class="flex items-center gap-2 text-slate-400 text-xs">
-                        <i data-lucide="wifi" class="w-3.5 h-3.5 text-slate-500"></i>
-                        <span>Network for DB sync</span>
-                    </li>
-                </ul>
-                <p class="text-slate-600 text-[10px] mt-4 border-t border-white/5 pt-3">Place .exe and .jar in the same folder before launching.</p>
-            </div>
-        </div>
+        <a href="{% url 'shop:admin_pos_download' %}" 
+           class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 transition-all text-slate-900 font-black px-6 py-3 rounded-xl text-sm shadow-lg shadow-emerald-500/30 hover:scale-105 active:scale-100 flex-shrink-0">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            Download POS
+        </a>
     </div>
 </div>
 

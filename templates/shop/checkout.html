@@ -26,7 +26,7 @@
                 <div class="lg:w-2/3 space-y-8 animate-fade-in-up" style="animation-delay: 100ms;">
                     
                     <!-- Contact Info -->
-                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="bg-white p-8 rounded-lg md:rounded-xl shadow-sm border border-slate-100">
                         <div class="flex items-center space-x-4 mb-6">
                             <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">1</div>
                             <h2 class="text-xl font-bold">Contact Information</h2>
@@ -53,7 +53,7 @@
                     </div>
                     
                     <!-- Shipping Info -->
-                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="bg-white p-8 rounded-lg md:rounded-xl shadow-sm border border-slate-100">
                         <div class="flex items-center space-x-4 mb-6">
                             <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">2</div>
                             <h2 class="text-xl font-bold">Shipping Details</h2>
@@ -84,7 +84,7 @@
                     </div>
 
                     <!-- Payment Method Selection -->
-                    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <div class="bg-white p-8 rounded-lg md:rounded-xl shadow-sm border border-slate-100">
                         <div class="flex items-center space-x-4 mb-6">
                             <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center font-bold">3</div>
                             <h2 class="text-xl font-bold">Payment Method</h2>
@@ -93,7 +93,7 @@
                         <!-- Tier 1: Primary Selection -->
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                             <!-- COD Option -->
-                            <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-3xl cursor-pointer hover:border-emerald-500 transition-all group">
+                            <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-lg md:rounded-xl cursor-pointer hover:border-emerald-500 transition-all group">
                                 <input type="radio" name="main_method" value="cod" class="peer hidden" checked>
                                 <div class="absolute top-5 right-5 w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center transition-all">
                                     <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
@@ -108,7 +108,7 @@
                             </label>
 
                             <!-- Online Toggle Option -->
-                            <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-3xl cursor-pointer hover:border-emerald-500 transition-all group">
+                            <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-lg md:rounded-xl cursor-pointer hover:border-emerald-500 transition-all group">
                                 <input type="radio" name="main_method" value="online" class="peer hidden">
                                 <div class="absolute top-5 right-5 w-5 h-5 rounded-full border-2 border-slate-300 peer-checked:border-emerald-500 peer-checked:bg-emerald-500 flex items-center justify-center transition-all">
                                     <div class="w-2 h-2 rounded-full bg-white opacity-0 peer-checked:opacity-100"></div>
@@ -130,7 +130,7 @@
 
 
                                 <!-- esewa -->
-                                <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-3xl cursor-pointer hover:border-[#60BB46] transition-all group">
+                                <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-lg md:rounded-xl cursor-pointer hover:border-[#60BB46] transition-all group">
                                     <input type="radio" name="payment_method" value="esewa" class="peer hidden">
                                     <div class="absolute top-5 right-5 w-4 h-4 rounded-full border-2 border-slate-300 peer-checked:bg-[#60BB46] peer-checked:border-[#60BB46] flex items-center justify-center transition-all"></div>
                                     <div class="p-1.5 bg-white group-hover:bg-slate-50 rounded-xl transition-all w-12 h-12 mb-3 flex items-center justify-center shadow-sm border border-slate-100 group-hover:scale-105">
@@ -140,7 +140,7 @@
                                 </label>
 
                                 <!-- paypal -->
-                                <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-3xl cursor-pointer hover:border-[#003087] transition-all group">
+                                <label class="payment-card relative flex flex-col p-5 bg-white border border-slate-200 rounded-lg md:rounded-xl cursor-pointer hover:border-[#003087] transition-all group">
                                     <input type="radio" name="payment_method" value="paypal" class="peer hidden">
                                     <div class="absolute top-5 right-5 w-4 h-4 rounded-full border-2 border-slate-300 peer-checked:bg-[#003087] peer-checked:border-[#003087] flex items-center justify-center transition-all"></div>
                                     <div class="p-1.5 bg-white group-hover:bg-slate-50 rounded-xl transition-all w-12 h-12 mb-3 flex items-center justify-center shadow-sm border border-slate-100 group-hover:scale-105">
@@ -161,7 +161,7 @@
 
                 <!-- Right Column: Order Summary -->
                 <div class="lg:w-1/3 animate-fade-in-up" style="animation-delay: 200ms;">
-                    <div class="bg-white rounded-3xl p-8 sticky top-24 shadow-sm border border-slate-100">
+                    <div class="bg-white rounded-lg md:rounded-xl p-8 sticky top-24 shadow-sm border border-slate-100">
                         <h3 class="text-lg font-bold mb-6 pb-6 border-b border-slate-100">Order Summary <span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-0.5 rounded-full ml-2">{{ cart_item_count }}</span></h3>
                         
                         <div class="space-y-4 mb-8 max-h-60 overflow-y-auto pt-3 pr-2 custom-scrollbar">
@@ -200,13 +200,13 @@
                         </div>
                         
                         <!-- Standard Pay Button (COD / eSewa) -->
-                        <button type="submit" id="main-pay-btn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-2xl transition-colors shadow-lg shadow-emerald-500/20 text-lg flex items-center justify-center space-x-2">
+                        <button type="submit" id="main-pay-btn" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold py-4 rounded-lg md:rounded-xl transition-colors shadow-lg shadow-emerald-500/20 text-lg flex items-center justify-center space-x-2">
                             <i data-lucide="lock" class="w-5 h-5"></i>
                             <span>Pay & Place Order</span>
                         </button>
 
                         <!-- WhatsApp Direct Order -->
-                        <button type="button" id="whatsapp-pay-btn" style="background-color: #25D366;" class="w-full mt-4 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-green-500/10 text-lg flex items-center justify-center space-x-2 transform active:scale-[0.98]">
+                        <button type="button" id="whatsapp-pay-btn" style="background-color: #25D366;" class="w-full mt-4 text-white font-bold py-4 rounded-lg md:rounded-xl transition-all shadow-lg shadow-green-500/10 text-lg flex items-center justify-center space-x-2 transform active:scale-[0.98]">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="w-6 h-6 mr-1 brightness-0 invert" alt="WhatsApp">
                             <span style="color: white !important;">Order via WhatsApp</span>
                         </button>

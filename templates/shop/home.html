@@ -55,7 +55,7 @@
             <div class="hidden lg:flex flex-col gap-4 flex-shrink-0 w-64">
 
                 <!-- Compact pill badge -->
-                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-xl px-4 py-3 flex items-center gap-3 w-fit">
+                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg md:rounded-xl shadow-xl px-4 py-3 flex items-center gap-3 w-fit">
                     <div class="flex flex-col gap-1">
                         <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider leading-none">12k Reviews</span>
                         <span class="text-yellow-400 text-sm leading-none">★★★★★</span>
@@ -73,7 +73,7 @@
                 </div>
 
                 <!-- Testimonial Card 1 -->
-                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 text-white shadow-xl">
+                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg md:rounded-xl p-5 text-white shadow-xl">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="w-9 h-9 rounded-full bg-emerald-500 flex items-center justify-center font-black text-slate-900 text-sm flex-shrink-0">S</div>
                         <div>
@@ -86,7 +86,7 @@
                 </div>
 
                 <!-- Testimonial Card 2 -->
-                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-5 text-white shadow-xl">
+                <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-lg md:rounded-xl p-5 text-white shadow-xl">
                     <div class="flex items-center gap-3 mb-3">
                         <div class="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center font-black text-white text-sm flex-shrink-0">R</div>
                         <div>
@@ -126,7 +126,7 @@
 
 <!-- Special Offers Swiper -->
 <section class="container mx-auto px-4 mt-12 relative z-20 animate-fade-in-up animation-delay-300">
-    <div class="swiper offersSwiper w-full h-[350px] md:h-[400px] rounded-3xl overflow-hidden shadow-2xl">
+    <div class="swiper offersSwiper w-full h-[350px] md:h-[400px] rounded-lg md:rounded-xl overflow-hidden shadow-2xl">
         <div class="swiper-wrapper">
             {% for promo in promotions %}
             <div class="swiper-slide relative">
@@ -140,11 +140,11 @@
                             <h2 class="text-3xl md:text-5xl font-bold mb-3">{{ promo.title }}</h2>
                             <p class="text-slate-200 text-lg mb-6 line-clamp-2">{{ promo.subtitle }}</p>
                             <div class="flex space-x-4 mb-8">
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">48</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Hours</span>
                                 </div>
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">12</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Mins</span>
                                 </div>
@@ -171,11 +171,11 @@
                             <h2 class="text-3xl md:text-5xl font-bold mb-3">Level Up Your Setup</h2>
                             <p class="text-slate-200 text-lg mb-6">Pro-grade peripherals, ultra-fast monitors & gaming chairs. Up to 35% off.</p>
                             <div class="flex space-x-4 mb-8">
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">24</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Hours</span>
                                 </div>
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">35</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Mins</span>
                                 </div>
@@ -201,11 +201,11 @@
                             <h2 class="text-3xl md:text-5xl font-bold mb-3">Pure Sound, Zero Wires</h2>
                             <p class="text-slate-200 text-lg mb-6">Premium headphones & earbuds with noise cancellation. Starting from $49.</p>
                             <div class="flex space-x-4 mb-8">
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">72</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Hours</span>
                                 </div>
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">05</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Mins</span>
                                 </div>
@@ -231,11 +231,11 @@
                             <h2 class="text-3xl md:text-5xl font-bold mb-3">Next-Gen Smartphones</h2>
                             <p class="text-slate-200 text-lg mb-6">Flagship-grade cameras, blazing fast chipsets. Trade in & save up to $200.</p>
                             <div class="flex space-x-4 mb-8">
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">06</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Hours</span>
                                 </div>
-                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] text-center">
+                                <div class="bg-white/10 backdrop-blur-md border border-white/20 p-3 rounded-lg md:rounded-xl min-w-[70px] text-center">
                                     <span class="block text-2xl font-bold">48</span>
                                     <span class="text-[10px] uppercase tracking-tighter text-slate-400">Mins</span>
                                 </div>
@@ -264,7 +264,7 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-4">
         {% for product in top_selling %}
         <div
-            class="flex items-center gap-3 p-3 sm:p-4 bg-white rounded-2xl shadow-md border border-slate-100 hover:shadow-xl hover:border-emerald-100 transition-all group relative">
+            class="flex items-center gap-3 p-3 sm:p-4 bg-white rounded-lg md:rounded-xl shadow-md border border-slate-100 hover:shadow-xl hover:border-emerald-100 transition-all group relative">
             <!-- Number -->
             <span
                 class="text-2xl sm:text-4xl font-black text-slate-200 group-hover:text-emerald-500 transition-colors select-none w-8 sm:w-10 flex-shrink-0 text-center">
