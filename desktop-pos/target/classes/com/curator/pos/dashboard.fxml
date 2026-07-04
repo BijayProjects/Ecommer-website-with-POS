@@ -25,6 +25,7 @@
                 <Separator orientation="VERTICAL" />
                 <Button mnemonicParsing="false" onAction="#refreshData" style="-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-cursor: hand;" text="↻ Sync All Data" />
                 <Button mnemonicParsing="false" onAction="#handleChangePrinter" style="-fx-background-color: #6366f1; -fx-text-fill: white; -fx-cursor: hand;" text="🖨 Select Printer" />
+                <Button mnemonicParsing="false" onAction="#handleReprintLast" style="-fx-background-color: #0ea5e9; -fx-text-fill: white; -fx-cursor: hand;" text="🔄 Reprint Last" />
                 <Button mnemonicParsing="false" onAction="#handleReloadApp" style="-fx-background-color: #f59e0b; -fx-text-fill: white; -fx-cursor: hand;" text="🔄 Reload App" />
             </items>
             <padding>

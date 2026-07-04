@@ -20,6 +20,15 @@ import javafx.util.Duration;
 import javafx.stage.FileChooser;
 import javafx.geometry.Insets;
 import java.net.Socket;
+import java.net.InetSocketAddress;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.util.Enumeration;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.io.File;
@@ -793,7 +802,7 @@ public class DashboardController {
         ToggleGroup group = new ToggleGroup();
         RadioButton rbSystem = new RadioButton("System/Bluetooth Printer (Wired/Paired)");
         rbSystem.setToggleGroup(group);
-        RadioButton rbNetwork = new RadioButton("Wireless/Network Thermal Printer (IP)");
+        RadioButton rbNetwork = new RadioButton("Wireless/Network Thermal Printer (WiFi/IP)");
         rbNetwork.setToggleGroup(group);
 
         // System Printer UI
@@ -815,28 +824,133 @@ public class DashboardController {
         TextField portField = new TextField(String.valueOf(networkPrinterPort));
         portField.setPromptText("9100");
 
-        grid.add(rbSystem, 0, 0, 2, 1);
-        grid.add(new Label("Printer:"), 0, 1);
-        grid.add(systemPrintersCombo, 1, 1);
+        // Status label for connection test feedback
+        Label statusLabel = new Label("");
+        statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold;");
 
-        grid.add(new Label(""), 0, 2); // spacer
+        // Test Connection button
+        Button testBtn = new Button("⚡ Test Connection");
+        testBtn.setStyle("-fx-background-color: #3b82f6; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 8;");
+        testBtn.setOnAction(e -> {
+            String testIp = ipField.getText().trim();
+            int testPort;
+            try {
+                testPort = Integer.parseInt(portField.getText().trim());
+            } catch (Exception ex) {
+                testPort = 9100;
+            }
+            statusLabel.setText("⏳ Testing connection...");
+            statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;");
 
-        grid.add(rbNetwork, 0, 3, 2, 1);
-        grid.add(new Label("IP Address:"), 0, 4);
-        grid.add(ipField, 1, 4);
-        grid.add(new Label("Port:"), 0, 5);
-        grid.add(portField, 1, 5);
+            final int finalPort = testPort;
+            new Thread(() -> {
+                boolean success = false;
+                String message;
+                try {
+                    Socket testSocket = new Socket();
+                    testSocket.connect(new InetSocketAddress(testIp, finalPort), 3000);
+                    testSocket.close();
+                    success = true;
+                    message = "✅ Connected to " + testIp + ":" + finalPort + " successfully!";
+                } catch (java.net.SocketTimeoutException ex) {
+                    message = "❌ Timed out — printer not reachable at " + testIp + ":" + finalPort;
+                } catch (java.net.ConnectException ex) {
+                    message = "❌ Refused — port " + finalPort + " not open. Try port 9100.";
+                } catch (Exception ex) {
+                    message = "❌ Error: " + ex.getMessage();
+                }
+                final String finalMsg = message;
+                final boolean finalSuccess = success;
+                Platform.runLater(() -> {
+                    statusLabel.setText(finalMsg);
+                    statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: " + (finalSuccess ? "#10b981" : "#ef4444") + ";");
+                });
+            }).start();
+        });
+
+        // Scan Network button
+        ComboBox<String> discoveredPrinters = new ComboBox<>();
+        discoveredPrinters.setPromptText("Discovered printers...");
+        discoveredPrinters.setPrefWidth(200);
+        discoveredPrinters.setOnAction(e -> {
+            String selected = discoveredPrinters.getValue();
+            if (selected != null && selected.contains(":")) {
+                String[] parts = selected.split(":");
+                ipField.setText(parts[0].trim());
+                if (parts.length > 1) {
+                    portField.setText(parts[1].trim());
+                }
+            }
+        });
+
+        Button scanBtn = new Button("🔍 Scan WiFi Printers");
+        scanBtn.setStyle("-fx-background-color: #8b5cf6; -fx-text-fill: white; -fx-cursor: hand; -fx-background-radius: 8;");
+        scanBtn.setOnAction(e -> {
+            statusLabel.setText("⏳ Scanning network for printers (this may take 10-15s)...");
+            statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;");
+            discoveredPrinters.getItems().clear();
+            scanBtn.setDisable(true);
+
+            new Thread(() -> {
+                List<String> found = scanForNetworkPrinters();
+                Platform.runLater(() -> {
+                    scanBtn.setDisable(false);
+                    if (found.isEmpty()) {
+                        statusLabel.setText("⚠️ No WiFi printers found on port 9100. Check the printer is on.");
+                        statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #f59e0b;");
+                    } else {
+                        statusLabel.setText("✅ Found " + found.size() + " printer(s)! Select one below.");
+                        statusLabel.setStyle("-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #10b981;");
+                        discoveredPrinters.getItems().addAll(found);
+                        discoveredPrinters.getSelectionModel().selectFirst();
+                        // Auto-fill the first found
+                        String first = found.get(0);
+                        if (first.contains(":")) {
+                            String[] parts = first.split(":");
+                            ipField.setText(parts[0].trim());
+                            portField.setText(parts[1].trim());
+                        }
+                    }
+                });
+            }).start();
+        });
+
+        // Layout
+        int row = 0;
+        grid.add(rbSystem, 0, row, 2, 1); row++;
+        grid.add(new Label("Printer:"), 0, row);
+        grid.add(systemPrintersCombo, 1, row); row++;
+
+        grid.add(new Label(""), 0, row); row++; // spacer
+
+        grid.add(rbNetwork, 0, row, 2, 1); row++;
+        grid.add(new Label("IP Address:"), 0, row);
+        grid.add(ipField, 1, row); row++;
+        grid.add(new Label("Port:"), 0, row);
+        grid.add(portField, 1, row); row++;
+
+        HBox networkActions = new HBox(8, testBtn, scanBtn);
+        grid.add(networkActions, 0, row, 2, 1); row++;
+        grid.add(statusLabel, 0, row, 2, 1); row++;
+        grid.add(new Label("Found:"), 0, row);
+        grid.add(discoveredPrinters, 1, row); row++;
 
         // Logic to enable/disable fields
         rbSystem.setOnAction(e -> {
             systemPrintersCombo.setDisable(false);
             ipField.setDisable(true);
             portField.setDisable(true);
+            testBtn.setDisable(true);
+            scanBtn.setDisable(true);
+            discoveredPrinters.setDisable(true);
         });
         rbNetwork.setOnAction(e -> {
             systemPrintersCombo.setDisable(true);
             ipField.setDisable(false);
             portField.setDisable(false);
+            testBtn.setDisable(false);
+            scanBtn.setDisable(false);
+            discoveredPrinters.setDisable(false);
         });
 
         // Set initial state
@@ -847,6 +961,9 @@ public class DashboardController {
             rbSystem.setSelected(true);
             ipField.setDisable(true);
             portField.setDisable(true);
+            testBtn.setDisable(true);
+            scanBtn.setDisable(true);
+            discoveredPrinters.setDisable(true);
         }
 
         dialog.getDialogPane().setContent(grid);
@@ -864,15 +981,15 @@ public class DashboardController {
                     }
                 } else {
                     printerType = "NETWORK";
-                    networkPrinterIp = ipField.getText();
+                    networkPrinterIp = ipField.getText().trim();
                     try {
-                        networkPrinterPort = Integer.parseInt(portField.getText());
+                        networkPrinterPort = Integer.parseInt(portField.getText().trim());
                     } catch (Exception e) {
                         networkPrinterPort = 9100;
                     }
                 }
                 savePrinterConfig();
-                showAlert("Printer Selected", "Bills will now auto-print via " + printerType + "\n" + (printerType.equals("SYSTEM") ? selectedPrinterName : networkPrinterIp));
+                showAlert("Printer Selected", "Bills will now auto-print via " + printerType + "\n" + (printerType.equals("SYSTEM") ? selectedPrinterName : networkPrinterIp + ":" + networkPrinterPort));
                 return true;
             }
             return false;
@@ -888,10 +1005,11 @@ public class DashboardController {
             try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
                 String type = reader.readLine();
                 if (type != null) {
-                    printerType = type;
+                    printerType = type.trim();
                     if (printerType.equals("SYSTEM")) {
                         String name = reader.readLine();
-                        if (name != null && !name.isEmpty()) {
+                        if (name != null && !name.trim().isEmpty()) {
+                            name = name.trim();
                             PrintService[] services = PrintServiceLookup.lookupPrintServices(null, null);
                             for (PrintService s : services) {
                                 if (s.getName().equals(name)) {
@@ -902,10 +1020,15 @@ public class DashboardController {
                             }
                         }
                     } else if (printerType.equals("NETWORK")) {
-                        networkPrinterIp = reader.readLine();
+                        String ip = reader.readLine();
+                        networkPrinterIp = (ip != null) ? ip.trim() : "192.168.1.100";
                         try {
-                            networkPrinterPort = Integer.parseInt(reader.readLine());
-                        } catch (Exception e) {}
+                            String portStr = reader.readLine();
+                            networkPrinterPort = (portStr != null) ? Integer.parseInt(portStr.trim()) : 9100;
+                            if (networkPrinterPort <= 0 || networkPrinterPort > 65535) networkPrinterPort = 9100;
+                        } catch (Exception e) {
+                            networkPrinterPort = 9100; // Default ESC/POS port for WiFi thermal printers
+                        }
                     }
                 }
             } catch (Exception e) { e.printStackTrace(); }
@@ -976,14 +1099,22 @@ public class DashboardController {
                     "The receipt was saved to last_receipt.txt.");
             }
         } else if (printerType.equals("NETWORK")) {
-            try (Socket socket = new Socket(networkPrinterIp, networkPrinterPort)) {
+            Socket socket = null;
+            try {
+                socket = new Socket();
+                // 3-second timeout prevents app from hanging when printer is unreachable
+                socket.connect(new InetSocketAddress(networkPrinterIp, networkPrinterPort), 3000);
+                socket.setSoTimeout(5000); // 5s write timeout
                 OutputStream out = socket.getOutputStream();
                 
-                // Basic ESC/POS Initialization
+                // ESC/POS Initialize printer
                 out.write(new byte[]{0x1B, 0x40}); 
                 
-                // Write standard text
-                out.write(receiptText.getBytes(StandardCharsets.UTF_8));
+                // Convert all newlines to CRLF as some thermal printers require CR to print the line buffer
+                String formattedText = receiptText.replace("\n", "\r\n");
+                
+                // Write receipt text
+                out.write(formattedText.getBytes(StandardCharsets.UTF_8));
                 
                 // Line feeds to scroll the paper
                 out.write(new byte[]{0x0A, 0x0A, 0x0A, 0x0A, 0x0A});
@@ -992,12 +1123,35 @@ public class DashboardController {
                 out.write(new byte[]{0x1D, 0x56, 0x41, 0x00});
                 
                 out.flush();
+                
+                // Give the printer's network buffer 500ms to process before closing the socket
+                Thread.sleep(500);
+            } catch (java.net.SocketTimeoutException e) {
+                e.printStackTrace();
+                showAlert("Network Print Failed", 
+                    "Connection timed out to printer at " + networkPrinterIp + ":" + networkPrinterPort + "\n\n" +
+                    "Check that:\n" +
+                    "• The printer is powered on and connected to WiFi\n" +
+                    "• The IP address is correct\n" +
+                    "• Port " + networkPrinterPort + " is correct (most WiFi receipt printers use 9100)\n\n" +
+                    "The receipt was saved to last_receipt.txt.");
+            } catch (java.net.ConnectException e) {
+                e.printStackTrace();
+                showAlert("Network Print Failed", 
+                    "Connection refused by " + networkPrinterIp + ":" + networkPrinterPort + "\n\n" +
+                    "The device is reachable but refused the connection on port " + networkPrinterPort + ".\n" +
+                    "Try port 9100 (standard ESC/POS) or check your printer's network settings.\n\n" +
+                    "The receipt was saved to last_receipt.txt.");
             } catch (Exception e) {
                 e.printStackTrace();
                 showAlert("Network Print Failed", 
                     "Could not connect to printer at " + networkPrinterIp + ":" + networkPrinterPort + "\n" +
                     "Error: " + e.getMessage() + "\n\n" +
                     "The receipt was saved to last_receipt.txt.");
+            } finally {
+                if (socket != null) {
+                    try { socket.close(); } catch (Exception ignored) {}
+                }
             }
         }
     }
@@ -1008,6 +1162,99 @@ public class DashboardController {
     @FXML
     public void handleChangePrinter() {
         selectPrinter();
+    }
+
+    /**
+     * Scans the local network subnet for devices with ESC/POS port 9100 open.
+     * Returns a list of "IP:PORT" strings for discovered printers.
+     */
+    private List<String> scanForNetworkPrinters() {
+        List<String> found = new CopyOnWriteArrayList<>();
+        String localSubnet = null;
+
+        // Determine local subnet from the machine's network interfaces
+        try {
+            Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+            for (NetworkInterface netIf : Collections.list(nets)) {
+                if (netIf.isLoopback() || !netIf.isUp()) continue;
+                Enumeration<InetAddress> addrs = netIf.getInetAddresses();
+                while (addrs.hasMoreElements()) {
+                    InetAddress addr = addrs.nextElement();
+                    String hostAddr = addr.getHostAddress();
+                    // Only use IPv4 addresses that are on a local subnet
+                    if (hostAddr.startsWith("192.168.") || hostAddr.startsWith("10.") || hostAddr.startsWith("172.")) {
+                        int lastDot = hostAddr.lastIndexOf('.');
+                        localSubnet = hostAddr.substring(0, lastDot);
+                        break;
+                    }
+                }
+                if (localSubnet != null) break;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if (localSubnet == null) {
+            // Fallback: try to use the configured printer IP's subnet
+            if (networkPrinterIp != null && !networkPrinterIp.isEmpty()) {
+                int lastDot = networkPrinterIp.lastIndexOf('.');
+                if (lastDot > 0) localSubnet = networkPrinterIp.substring(0, lastDot);
+            }
+            if (localSubnet == null) localSubnet = "192.168.1";
+        }
+
+        // Scan all 254 IPs on the subnet using a thread pool
+        ExecutorService executor = Executors.newFixedThreadPool(50);
+        int[] portsToScan = {9100, 515};
+
+        for (int i = 1; i <= 254; i++) {
+            final String targetIp = localSubnet + "." + i;
+            executor.submit(() -> {
+                for (int port : portsToScan) {
+                    try {
+                        Socket socket = new Socket();
+                        socket.connect(new InetSocketAddress(targetIp, port), 500);
+                        socket.close();
+                        found.add(targetIp + ":" + port);
+                        break; // Found on this IP, no need to check other ports
+                    } catch (Exception ignored) {}
+                }
+            });
+        }
+
+        executor.shutdown();
+        try {
+            executor.awaitTermination(15, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return new ArrayList<>(found);
+    }
+
+    /**
+     * Reprints the last saved receipt to the currently configured printer.
+     */
+    @FXML
+    public void handleReprintLast() {
+        File receiptFile = new File("last_receipt.txt");
+        if (!receiptFile.exists()) {
+            showAlert("No Receipt", "No previous receipt found. Complete a sale first.");
+            return;
+        }
+
+        try {
+            String receiptText = new String(Files.readAllBytes(receiptFile.toPath()), StandardCharsets.UTF_8);
+            if (receiptText.trim().isEmpty()) {
+                showAlert("Empty Receipt", "The last receipt file is empty.");
+                return;
+            }
+            printReceiptToPrinter(receiptText);
+            showAlert("Reprint", "Last receipt sent to printer.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to read last_receipt.txt: " + e.getMessage());
+        }
     }
 
     @FXML

@@ -1,0 +1,323 @@
+﻿{% extends "shop/admin/admin_base.html" %}
+{% load static %}
+
+{% block header_title %}Cash Closing{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-2xl font-black text-slate-800">Cash Closing</h2>
+        <p class="text-slate-400 text-sm mt-1">Calculate and reconcile your end-of-day cash register</p>
+    </div>
+    <a href="{% url "shop:admin_cash_closing_history" %}"
+       class="flex items-center gap-2 border border-slate-200 text-slate-600 font-bold px-4 py-2 rounded-xl text-sm hover:bg-slate-50 transition-colors">
+        <i data-lucide="clock" class="w-4 h-4"></i> View History
+    </a>
+</div>
+
+<form method="post" id="closingForm">
+    {% csrf_token %}
+    <!-- Period Selector -->
+    <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 mb-6">
+        <p class="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-4">Select Period</p>
+        <div class="flex flex-wrap gap-3 mb-4">
+            <button type="submit" name="period_type" value="daily"
+                    class="px-5 py-2 rounded-xl font-bold text-sm transition-all {% if period_type == "daily" %}bg-emerald-500 text-slate-900 shadow-lg shadow-emerald-500/20{% else %}border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+                <i data-lucide="sun" class="w-4 h-4 inline mr-1"></i> Today
+            </button>
+            <button type="submit" name="period_type" value="weekly"
+                    class="px-5 py-2 rounded-xl font-bold text-sm transition-all {% if period_type == "weekly" %}bg-emerald-500 text-slate-900 shadow-lg shadow-emerald-500/20{% else %}border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+                <i data-lucide="calendar-days" class="w-4 h-4 inline mr-1"></i> This Week
+            </button>
+            <button type="submit" name="period_type" value="custom"
+                    class="px-5 py-2 rounded-xl font-bold text-sm transition-all {% if period_type == "custom" %}bg-emerald-500 text-slate-900 shadow-lg shadow-emerald-500/20{% else %}border border-slate-200 text-slate-600 hover:bg-slate-50{% endif %}">
+                <i data-lucide="calendar-range" class="w-4 h-4 inline mr-1"></i> Custom Range
+            </button>
+        </div>
+
+        {% if period_type == "custom" %}
+        <div class="flex gap-4 flex-wrap">
+            <div class="flex flex-col gap-1">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">From</label>
+                <input type="date" name="period_start" value="{{ period_start|date:"Y-m-d" }}"
+                       class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">To</label>
+                <input type="date" name="period_end" value="{{ period_end|date:"Y-m-d" }}"
+                       class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" name="period_type" value="custom"
+                        class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-700 transition-colors">
+                    Apply Range
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <input type="hidden" name="period_start" value="{{ period_start|date:"Y-m-d" }}">
+        <input type="hidden" name="period_end" value="{{ period_end|date:"Y-m-d" }}">
+        {% endif %}
+        <input type="hidden" name="period_type" value="{{ period_type }}">
+
+        <div class="mt-4 pt-4 border-t border-slate-50">
+            <p class="text-sm text-slate-500 font-medium">
+                <i data-lucide="calendar" class="w-4 h-4 inline text-emerald-500 mr-1"></i>
+                Reporting Period: <span class="font-black text-slate-800">{{ period_start|date:"M d, Y" }} — {{ period_end|date:"M d, Y" }}</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                    <i data-lucide="banknote" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Cash Sales (COD)</p>
+            </div>
+            <p class="text-2xl font-black text-emerald-600">Rs. {{ total_cash_sales|floatformat:2 }}</p>
+            <p class="text-xs text-slate-400 mt-1">{{ cash_order_count }} order{{ cash_order_count|pluralize }}</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center text-red-600">
+                    <i data-lucide="trending-down" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Total Expenses</p>
+            </div>
+            <p class="text-2xl font-black text-red-600">Rs. {{ total_expenses|floatformat:2 }}</p>
+            <p class="text-xs text-slate-400 mt-1">{{ expenses|length }} expense{{ expenses|length|pluralize }}</p>
+        </div>
+        <div class="bg-white border border-slate-100 rounded-2xl p-5 shadow-sm">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                </div>
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-500">Net Cash Flow</p>
+            </div>
+            <p class="text-2xl font-black text-blue-600" id="netFlow">Rs. 0.00</p>
+            <p class="text-xs text-slate-400 mt-1">Sales minus Expenses</p>
+        </div>
+    </div>
+
+    <!-- Cash Entry + Live Calculation -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Inputs -->
+        <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm p-6 space-y-5">
+            <h3 class="font-black text-slate-800 text-lg">Cash Register Entry</h3>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Opening Cash (Rs.)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rs.</span>
+                    <input type="number" name="opening_cash" id="openingCash" step="0.01" min="0"
+                           value="0.00" placeholder="0.00"
+                           class="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-bold"
+                           oninput="recalculate()">
+                </div>
+                <p class="text-xs text-slate-400">Cash that was already in the register at start of shift</p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Actual Closing Cash (Rs.) *</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rs.</span>
+                    <input type="number" name="actual_closing_cash" id="actualCash" step="0.01" min="0"
+                           value="0.00" placeholder="0.00" required
+                           class="w-full pl-12 pr-4 py-3 border-2 border-emerald-300 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all font-bold"
+                           oninput="recalculate()">
+                </div>
+                <p class="text-xs text-slate-400">Physically count all cash in the drawer and enter here</p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="text-[10px] font-black uppercase tracking-widest text-slate-500">Notes (Optional)</label>
+                <textarea name="notes" rows="3" placeholder="Any remarks about this closing session..."
+                          class="w-full px-4 py-3 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none"></textarea>
+            </div>
+        </div>
+
+        <!-- Live Calculation Panel -->
+        <div class="bg-slate-900 text-white rounded-[2rem] p-6 shadow-xl relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-40 h-40 bg-emerald-500/10 blur-3xl rounded-full translate-x-10 -translate-y-10 pointer-events-none"></div>
+
+            <h3 class="font-black text-lg mb-6 relative z-10">Live Calculation</h3>
+
+            <div class="space-y-4 relative z-10">
+                <div class="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
+                    <span class="text-slate-400 text-sm font-medium">Opening Cash</span>
+                    <span class="font-black text-white" id="calcOpening">Rs. 0.00</span>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                    <span class="text-emerald-400 text-sm font-medium">+ Cash Sales (COD)</span>
+                    <span class="font-black text-emerald-400">Rs. {{ total_cash_sales|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-xl bg-red-500/10 border border-red-500/20">
+                    <span class="text-red-400 text-sm font-medium">- Expenses</span>
+                    <span class="font-black text-red-400">Rs. {{ total_expenses|floatformat:2 }}</span>
+                </div>
+                <div class="border-t border-white/10 pt-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-slate-300 text-sm font-bold">= Expected Closing</span>
+                        <span class="font-black text-white text-lg" id="calcExpected">Rs. 0.00</span>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center p-3 rounded-xl bg-white/5 border border-white/10">
+                    <span class="text-slate-400 text-sm font-medium">Actual Cash (Counted)</span>
+                    <span class="font-black text-white" id="calcActual">Rs. 0.00</span>
+                </div>
+                <div class="border-t-2 border-white/20 pt-4">
+                    <div class="flex justify-between items-center p-4 rounded-2xl" id="discrepancyBox">
+                        <div>
+                            <p class="text-xs font-black uppercase tracking-widest mb-1" id="discrepancyLabel">Discrepancy</p>
+                            <p class="text-xs opacity-60" id="discrepancyHint">Enter amounts to calculate</p>
+                        </div>
+                        <span class="font-black text-2xl" id="calcDiscrepancy">Rs. 0.00</span>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" name="save_closing" value="1"
+                    class="mt-6 w-full py-4 bg-emerald-500 hover:bg-emerald-400 transition-all text-slate-900 font-black rounded-2xl text-sm shadow-lg shadow-emerald-500/30 hover:scale-[1.02] active:scale-100 relative z-10 flex items-center justify-center gap-2">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                Save & Print Report
+            </button>
+        </div>
+    </div>
+</form>
+
+<!-- Cash Orders Breakdown -->
+{% if cash_orders %}
+<div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 mb-6">
+    <div class="p-6 border-b border-slate-50 flex items-center justify-between">
+        <h3 class="font-black text-slate-800">Cash Orders in Period</h3>
+        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1 rounded-lg">{{ cash_order_count }} orders</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead>
+                <tr class="text-[10px] text-slate-400 uppercase tracking-widest font-black border-b border-slate-50 bg-slate-50/50">
+                    <th class="px-6 py-3">Order ID</th>
+                    <th class="px-6 py-3">Customer</th>
+                    <th class="px-6 py-3">Date & Time</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3 text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for order in cash_orders %}
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="px-6 py-3 font-bold text-slate-500">#{{ order.id|stringformat:"05d" }}</td>
+                    <td class="px-6 py-3 font-medium text-slate-800">{{ order.first_name }} {{ order.last_name }}</td>
+                    <td class="px-6 py-3 text-slate-400">{{ order.created_at|date:"M d, Y H:i" }}</td>
+                    <td class="px-6 py-3">
+                        <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-lg
+                            {% if order.status == "delivered" %}bg-emerald-100 text-emerald-600
+                            {% elif order.status == "cancelled" %}bg-red-100 text-red-600
+                            {% else %}bg-orange-100 text-orange-600{% endif %}">
+                            {{ order.status }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3 text-right font-black text-slate-800">Rs. {{ order.total_amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+<!-- Expenses Breakdown -->
+{% if expenses %}
+<div class="bg-white rounded-[2rem] shadow-sm border border-slate-100">
+    <div class="p-6 border-b border-slate-50 flex items-center justify-between">
+        <h3 class="font-black text-slate-800">Expenses in Period</h3>
+        <span class="text-xs font-bold text-red-600 bg-red-50 px-3 py-1 rounded-lg">Rs. {{ total_expenses|floatformat:2 }}</span>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+            <thead>
+                <tr class="text-[10px] text-slate-400 uppercase tracking-widest font-black border-b border-slate-50 bg-slate-50/50">
+                    <th class="px-6 py-3">Date</th>
+                    <th class="px-6 py-3">Description</th>
+                    <th class="px-6 py-3">Category</th>
+                    <th class="px-6 py-3 text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-50">
+                {% for exp in expenses %}
+                <tr class="hover:bg-slate-50/50 transition-colors">
+                    <td class="px-6 py-3 text-slate-500 font-bold">{{ exp.date|date:"M d, Y" }}</td>
+                    <td class="px-6 py-3 font-medium text-slate-800">{{ exp.description }}</td>
+                    <td class="px-6 py-3">
+                        <span class="px-2 py-0.5 text-[10px] font-black uppercase tracking-widest rounded-lg bg-orange-100 text-orange-600">
+                            {{ exp.get_category_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-3 text-right font-black text-red-600">Rs. {{ exp.amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const totalCashSales = {{ total_cash_sales }};
+    const totalExpenses = {{ total_expenses }};
+
+    function fmt(n) {
+        return 'Rs. ' + parseFloat(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+
+    function recalculate() {
+        const opening = parseFloat(document.getElementById('openingCash').value) || 0;
+        const actual = parseFloat(document.getElementById('actualCash').value) || 0;
+
+        const expected = opening + totalCashSales - totalExpenses;
+        const discrepancy = actual - expected;
+        const netFlow = totalCashSales - totalExpenses;
+
+        document.getElementById('calcOpening').textContent = fmt(opening);
+        document.getElementById('calcExpected').textContent = fmt(expected);
+        document.getElementById('calcActual').textContent = fmt(actual);
+        document.getElementById('netFlow').textContent = fmt(netFlow);
+
+        const disc = document.getElementById('calcDiscrepancy');
+        const box = document.getElementById('discrepancyBox');
+        const label = document.getElementById('discrepancyLabel');
+        const hint = document.getElementById('discrepancyHint');
+
+        disc.textContent = fmt(Math.abs(discrepancy));
+
+        if (discrepancy === 0) {
+            box.className = 'flex justify-between items-center p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/30';
+            disc.className = 'font-black text-2xl text-emerald-400';
+            label.textContent = 'Balanced ✓';
+            label.className = 'text-xs font-black uppercase tracking-widest mb-1 text-emerald-400';
+            hint.textContent = 'Cash register is balanced!';
+        } else if (discrepancy > 0) {
+            box.className = 'flex justify-between items-center p-4 rounded-2xl bg-blue-500/20 border border-blue-500/30';
+            disc.className = 'font-black text-2xl text-blue-400';
+            label.textContent = 'Cash Over ↑';
+            label.className = 'text-xs font-black uppercase tracking-widest mb-1 text-blue-400';
+            hint.textContent = 'More cash than expected';
+        } else {
+            box.className = 'flex justify-between items-center p-4 rounded-2xl bg-red-500/20 border border-red-500/30';
+            disc.className = 'font-black text-2xl text-red-400';
+            label.textContent = 'Cash Short ↓';
+            label.className = 'text-xs font-black uppercase tracking-widest mb-1 text-red-400';
+            hint.textContent = 'Less cash than expected';
+        }
+    }
+
+    // Initial calculation
+    recalculate();
+</script>
+{% endblock %}

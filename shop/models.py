@@ -194,3 +194,69 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.product.name} - {self.rating}*"
+
+
+class Expense(models.Model):
+    CATEGORY_CHOICES = [
+        ('rent', 'Rent'),
+        ('salary', 'Salary / Wages'),
+        ('utilities', 'Utilities (Electric, Water, Internet)'),
+        ('supplies', 'Office / Shop Supplies'),
+        ('repairs', 'Repairs & Maintenance'),
+        ('transport', 'Transport / Delivery'),
+        ('marketing', 'Marketing & Advertising'),
+        ('other', 'Other'),
+    ]
+
+    description = models.CharField(max_length=255)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='other')
+    date = models.DateField()
+    notes = models.TextField(blank=True)
+    created_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='expenses')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.description} - Rs.{self.amount} ({self.date})"
+
+
+class CashClosing(models.Model):
+    PERIOD_CHOICES = [
+        ('daily', 'Daily'),
+        ('weekly', 'Weekly'),
+        ('custom', 'Custom Range'),
+    ]
+
+    period_type = models.CharField(max_length=10, choices=PERIOD_CHOICES, default='daily')
+    period_start = models.DateField()
+    period_end = models.DateField()
+    opening_cash = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Cash in drawer at start of period")
+    total_cash_sales = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Total cash collected from sales (COD orders)")
+    total_expenses = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Total expenses in this period")
+    expected_closing_cash = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Opening + Sales - Expenses")
+    actual_closing_cash = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Cash physically counted in drawer")
+    discrepancy = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, help_text="Actual - Expected (positive=over, negative=short)")
+    notes = models.TextField(blank=True)
+    closed_by = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='cash_closings')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Cash Closing {self.period_start} to {self.period_end}"
+
+    @property
+    def is_balanced(self):
+        return self.discrepancy == 0
+
+    @property
+    def is_over(self):
+        return self.discrepancy > 0
+
+    @property
+    def is_short(self):
+        return self.discrepancy < 0

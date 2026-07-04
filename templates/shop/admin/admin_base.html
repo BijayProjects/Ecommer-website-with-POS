@@ -56,6 +56,24 @@
                         <i data-lucide="monitor-down" class="w-5 h-5"></i>
                         <span class="font-semibold">POS Download</span>
                     </a>
+
+                    <div class="pt-3 pb-1 px-4">
+                        <p class="text-[9px] uppercase tracking-widest font-bold text-slate-600">Cash Management</p>
+                    </div>
+
+                    <a href="{% url 'shop:admin_cash_closing' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {% if 'admin_cash_closing' in request.resolver_match.url_name %}sidebar-item-active text-white{% else %}hover:bg-slate-800 hover:text-white{% endif %}">
+                        <i data-lucide="calculator" class="w-5 h-5"></i>
+                        <span class="font-semibold">Cash Closing</span>
+                    </a>
+                    <a href="{% url 'shop:admin_cash_closing_history' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {% if 'admin_cash_closing_history' in request.resolver_match.url_name %}sidebar-item-active text-white{% else %}hover:bg-slate-800 hover:text-white{% endif %}">
+                        <i data-lucide="clock" class="w-5 h-5"></i>
+                        <span class="font-semibold">Closing History</span>
+                    </a>
+                    <a href="{% url 'shop:admin_expense_list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-xl transition-all {% if 'admin_expense' in request.resolver_match.url_name %}sidebar-item-active text-white{% else %}hover:bg-slate-800 hover:text-white{% endif %}">
+                        <i data-lucide="receipt" class="w-5 h-5"></i>
+                        <span class="font-semibold">Expenses</span>
+                    </a>
+
                 </nav>
 
                 <div class="mt-12">

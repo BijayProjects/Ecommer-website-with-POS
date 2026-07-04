@@ -1,0 +1,123 @@
+{% extends 'shop/admin/admin_base.html' %}
+{% load static %}
+
+{% block header_title %}Expense Manager{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h2 class="text-2xl font-black text-slate-800">Expense Manager</h2>
+        <p class="text-slate-400 text-sm mt-1">Track all shop expenses for accurate cash closing</p>
+    </div>
+    <a href="{% url 'shop:admin_expense_create' %}"
+       class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black px-5 py-3 rounded-xl text-sm shadow-lg shadow-emerald-500/20 hover:scale-105 transition-all">
+        <i data-lucide="plus" class="w-4 h-4"></i> Add Expense
+    </a>
+</div>
+
+<!-- Filter Bar -->
+<form method="get" class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+    <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">From</label>
+        <input type="date" name="date_from" value="{{ request.GET.date_from }}"
+               class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+    </div>
+    <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">To</label>
+        <input type="date" name="date_to" value="{{ request.GET.date_to }}"
+               class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+    </div>
+    <div class="flex flex-col gap-1">
+        <label class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Category</label>
+        <select name="category" class="px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+            <option value="">All Categories</option>
+            {% for val, label in category_choices %}
+            <option value="{{ val }}" {% if request.GET.category == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit"
+            class="px-5 py-2 bg-slate-800 text-white font-bold rounded-xl text-sm hover:bg-slate-700 transition-colors">
+        Filter
+    </button>
+    <a href="{% url 'shop:admin_expense_list' %}" class="px-5 py-2 border border-slate-200 text-slate-500 font-bold rounded-xl text-sm hover:bg-slate-50 transition-colors">Clear</a>
+</form>
+
+<!-- Summary Card -->
+<div class="bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 rounded-2xl p-5 mb-6 flex items-center justify-between">
+    <div class="flex items-center gap-4">
+        <div class="w-12 h-12 bg-red-500/10 rounded-xl flex items-center justify-center text-red-600">
+            <i data-lucide="trending-down" class="w-6 h-6"></i>
+        </div>
+        <div>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total Expenses (Filtered)</p>
+            <p class="text-2xl font-black text-red-600">Rs. {{ total_expenses|floatformat:2 }}</p>
+        </div>
+    </div>
+    <a href="{% url 'shop:admin_cash_closing' %}"
+       class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold px-4 py-2 rounded-xl text-sm transition-all">
+        <i data-lucide="calculator" class="w-4 h-4"></i> Go to Cash Closing
+    </a>
+</div>
+
+<!-- Table -->
+<div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="text-slate-400 text-[10px] uppercase tracking-[0.2em] font-black border-b border-slate-50 bg-slate-50/50">
+                    <th class="px-6 py-4">Date</th>
+                    <th class="px-6 py-4">Description</th>
+                    <th class="px-6 py-4">Category</th>
+                    <th class="px-6 py-4">Notes</th>
+                    <th class="px-6 py-4 text-right">Amount</th>
+                    <th class="px-6 py-4 text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody class="text-sm divide-y divide-slate-50">
+                {% for expense in expenses %}
+                <tr class="hover:bg-slate-50/50 transition-colors group">
+                    <td class="px-6 py-4 font-bold text-slate-700">{{ expense.date|date:"M d, Y" }}</td>
+                    <td class="px-6 py-4 text-slate-800 font-medium">{{ expense.description }}</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 bg-orange-100 text-orange-700 text-[10px] font-black uppercase tracking-widest rounded-lg">
+                            {{ expense.get_category_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-slate-400 text-xs max-w-xs truncate">{{ expense.notes|default:"—" }}</td>
+                    <td class="px-6 py-4 text-right font-black text-red-600">Rs. {{ expense.amount|floatformat:2 }}</td>
+                    <td class="px-6 py-4 text-center">
+                        <a href="{% url 'shop:admin_expense_delete' expense.pk %}"
+                           onclick="return confirm('Delete this expense?')"
+                           class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-red-100 text-red-500 hover:bg-red-500 hover:text-white transition-all">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-16 text-center text-slate-400">
+                        <i data-lucide="receipt" class="w-12 h-12 mx-auto mb-3 opacity-30"></i>
+                        <p class="font-bold">No expenses recorded yet</p>
+                        <p class="text-xs mt-1">Click "Add Expense" to log your first expense.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if is_paginated %}
+    <div class="px-6 py-4 border-t border-slate-50 flex justify-between items-center">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-500">&larr; Previous</a>
+        {% else %}<span></span>{% endif %}
+        <span class="text-xs text-slate-400 font-bold">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}" class="text-sm font-bold text-emerald-600 hover:text-emerald-500">Next &rarr;</a>
+        {% else %}<span></span>{% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+

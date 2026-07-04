@@ -3,8 +3,12 @@ from .views import HomeView, CategoryProductListView, DealsListView, ProductSear
 from .admin_views import (
     AdminDashboardView, AdminPOSDownloadView, AdminOrderListView, AdminOrderDetailView, AdminOrderUpdateStatusView,
     AdminProductListView, AdminProductCreateView, AdminProductUpdateView, AdminProductDeleteView,
-    AdminCategoryListView, AdminCategoryCreateView, AdminCategoryUpdateView
+    AdminCategoryListView, AdminCategoryCreateView, AdminCategoryUpdateView,
+    AdminExpenseListView, AdminExpenseCreateView, AdminExpenseDeleteView,
+    AdminCashClosingHistoryView,
+    admin_cash_closing_view, admin_cash_closing_print,
 )
+
 
 app_name = 'shop'
 
@@ -56,6 +60,16 @@ urlpatterns = [
         path('categories/', AdminCategoryListView.as_view(), name='admin_category_list'),
         path('categories/add/', AdminCategoryCreateView.as_view(), name='admin_category_create'),
         path('categories/<int:pk>/edit/', AdminCategoryUpdateView.as_view(), name='admin_category_update'),
+
+        # Expenses
+        path('expenses/', AdminExpenseListView.as_view(), name='admin_expense_list'),
+        path('expenses/add/', AdminExpenseCreateView.as_view(), name='admin_expense_create'),
+        path('expenses/<int:pk>/delete/', AdminExpenseDeleteView.as_view(), name='admin_expense_delete'),
+
+        # Cash Closing
+        path('cash-closing/', admin_cash_closing_view, name='admin_cash_closing'),
+        path('cash-closing/history/', AdminCashClosingHistoryView.as_view(), name='admin_cash_closing_history'),
+        path('cash-closing/<int:pk>/print/', admin_cash_closing_print, name='admin_cash_closing_print'),
     ])),
     path('whatsapp-order/<int:product_id>/', create_whatsapp_order, name='create_whatsapp_order'),
 ]
